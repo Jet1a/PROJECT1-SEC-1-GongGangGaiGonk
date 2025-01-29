@@ -1,10 +1,12 @@
-<script setup></script>
+<script setup>
+import GamePage from "./GamePage.vue";
+</script>
 
 <template>
   <main
-    class="min-h-screen flex items-center justify-center bg-green-400 text-black font-mono"
+    class="min-h-screen flex items-center justify-center bg-white text-black"
   >
-    <h1 class="text-2xl">Project1 GongGangGaiGonk</h1>
+    <GamePage />
   </main>
 </template>
 
