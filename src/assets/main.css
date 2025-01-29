@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Home page */
+#h1Topic {
+    color:  #1882FF;
+}
+  #box1 {
+    width: 599px;
+    height: 164px;
+  }
+  #box2 {
+    width: 573px;
+    height: 151px;
+  }
+  #btnPlay {
+    background-color:  #1882FF;
+    color: white;
+  }
+  #inputName {
+    background-color: #ffffff;
+    height: 71px;
+  }
+  #btnHow {
+    background-color: #ffffff;
+    color: black;
+  }
+/*  */
