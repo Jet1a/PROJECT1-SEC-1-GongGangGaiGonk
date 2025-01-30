@@ -16,12 +16,16 @@ watch(userName, (newValue) => { // Watch input Username
     isError.value = false
   }
 })
+const isVisible = ref(true) // Show or hide the main page
+const toggleVisibility = () => {
+  isVisible.value = !isVisible.value
 
+}
 </script>
 
 <template>
 
-  <main class="min-h-screen flex items-center justify-center bg-white text-black font-mono">
+  <main v-show="isVisible" class="min-h-screen flex items-center justify-center bg-white text-black font-mono">
     <div class="justify-center text-center flex flex-col items-center" id="box1">
       <h1 class="text-7xl font-bold m-2 text-blue-500 -tracking-tighter" id="h1Topic">TORKUM</h1>
       <h2 class="text-xl font-bold m-2">Word Chain Game</h2>
@@ -38,8 +42,7 @@ watch(userName, (newValue) => { // Watch input Username
             :class="{ 'border-red-500 placeholder-red-500': isError, 'border-gray-300 placeholder-gray-400': !isError }"
             id="inputName"
           />
-          <button type="submit" class="btn btn-info btn-wide drop-shadow-md m-2" id="btnPlay">Start!!</button>
-          <button type="button" class="btn btn-outline btn-wide drop-shadow-md m-2" id="btnHow">How to play?</button>
+          <button @click="toggleVisibility" type="submit" class="btn btn-info btn-wide drop-shadow-md m-2 " id="btnPlay">Play!!</button>
         </form>
       </div>
     </div>

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Home page */
-#h1Topic {
+  #h1Topic {
     color:  #1882FF;
 }
   #box1 {
@@ -17,6 +17,8 @@
   #btnPlay {
     background-color:  #1882FF;
     color: white;
+    width:294px;
+    height:55px;
   }
   #inputName {
     background-color: #ffffff;
