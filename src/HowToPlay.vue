@@ -60,7 +60,7 @@ const isVisible = ref(true)
                             </ul>
                         </div>
                         <div class="hero-content text-center border-2 rounded-xl border-gray-400 p-[40px]
-                                w-[50%] h-[35rem] mx-auto bg-white shadow-lg ">
+                                w-[50%] h-[30rem] mx-auto bg-white shadow-lg ">
                             <div class="max-w-md mx-auto">
 
                                 <h1 class="text-5xl font-bold text-[#1882FF] my-3">How to Play ?</h1>
