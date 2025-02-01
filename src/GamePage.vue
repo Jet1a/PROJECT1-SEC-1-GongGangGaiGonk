@@ -1,33 +1,57 @@
 <script setup>
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 
 const score = ref(0);
 const counter = ref(15);
 const wordCount = ref(0);
 const wordInput = ref("");
 const interval = ref(null);
+const usedWord = ref([]);
+const inputError = ref("");
+const notification = ref("Enter a word to start");
 
 const handleInputChange = (e) => {
-  if (e.target.value.trim() !== "") {
-    counter.value = 15;
+  wordInput.value = e.target.value.trim();
 
-    if (interval.value) {
-      clearInterval(interval.value);
-    }
-
-    interval.value = setInterval(() => {
-      if (counter.value > 0) {
-        counter.value--;
-      } else {
-        clearInterval(interval.value);
-        interval.value = null;
-      }
-    }, 1000);
-
-    wordInput.value = e.target.value.toUpperCase();
-    console.log(wordInput.value);
+  if (
+    wordInput.value === "" ||
+    /\d/.test(wordInput.value) ||
+    wordInput.value.includes(" ")
+  ) {
+    inputError.value = `"${wordInput.value.toUpperCase()}" is not a valid word!`;
+    wordInput.value = "";
+    return;
   }
 
+  if (wordInput.value.length < 3) {
+    inputError.value = `Word must be at least 3 character long!`;
+    wordInput.value = "";
+    return;
+  }
+
+  counter.value = 15;
+
+  if (interval.value) {
+    clearInterval(interval.value);
+  }
+
+  interval.value = setInterval(() => {
+    if (counter.value > 0) {
+      counter.value--;
+    } else {
+      clearInterval(interval.value);
+      interval.value = null;
+    }
+  }, 1000);
+
+  score.value += wordInput.value.length;
+  wordCount.value++;
+
+  usedWord.value.push(wordInput.value.toUpperCase());
+  const nextLetter = wordInput.value.toUpperCase().slice(-1);
+
+  notification.value = `Next word must begin with '${nextLetter}'`;
+  inputError.value = "";
   wordInput.value = "";
 };
 </script>
@@ -61,15 +85,28 @@ const handleInputChange = (e) => {
     </section>
 
     <section class="flex items-center justify-center flex-col space-y-4">
-      <div class="w-full bg-blue-500 rounded-sm text-center py-2">
-        <span class="text-2xl font-semibold text-white"
-          >Enter a word to start</span
+      <div
+        :class="{
+          'w-full text-center py-2 rounded-sm': true,
+          'bg-blue-500': !inputError,
+          'bg-red-200': inputError,
+        }"
+      >
+        <span
+          :class="{
+            'text-2xl font-semibold': true,
+            'text-white': !inputError,
+            'text-red-500': inputError,
+          }"
         >
+          {{ inputError || notification }}
+        </span>
       </div>
+
       <div class="border rounded-xl shadow-md">
         <input
           class="w-[574px] h-[65px] text-2xl p-4 bg-white rounded shadow-inner uppercase outline-none"
-          @keyup.enter="handleInputChange"
+          @keydown.enter="handleInputChange"
           v-model="wordInput"
           type="text"
         />
@@ -79,17 +116,10 @@ const handleInputChange = (e) => {
         <div
           class="flex items-center justify-start flex-wrap gap-4 uppercase font-semibold text-[#777777] pt-4"
         >
-          <span class="w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
-            >Hello</span
-          >
-          <span class="w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
-            >Magnificent</span
-          >
-          <span class="w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
-            >Banana</span
-          >
-          <span class="w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
-            >Hello</span
+          <span
+            v-for="(value, key) in usedWord"
+            class="w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
+            >{{ value }}</span
           >
         </div>
       </div>
