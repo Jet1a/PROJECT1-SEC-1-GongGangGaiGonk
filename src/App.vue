@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import GamePage from "./GamePage.vue";
+import HowToPlay from "./HowToPlay.vue";
 const score = ref(0);
 const totalTime = ref(0);
 const wordCount = ref(0);
@@ -83,6 +84,7 @@ const playAgain = () => {
       </div>
     </section>
     <GamePage/>
+    <HowToPlay/>
   </main>
 </template>
 
