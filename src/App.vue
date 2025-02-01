@@ -86,6 +86,7 @@ const playAgain = () => {
     <GamePage/>
     <HowToPlay/>
   </main>
+
 </template>
 
 <style scoped></style>
