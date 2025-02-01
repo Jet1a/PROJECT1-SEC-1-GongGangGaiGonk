@@ -6,7 +6,7 @@ import HowToPlay from './HowToPlay.vue';
 
 <template>
   <div>
-    <HowToPlay />
+    <HowToPlay/>
   </div>
 </template>
 
