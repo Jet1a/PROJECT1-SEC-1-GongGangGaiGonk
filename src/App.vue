@@ -1,4 +1,6 @@
 <script setup>
+
+import HomePage from "./HomePage.vue";
 import { ref } from "vue";
 import wordDictionary from "./data/words_dictionary";
 
@@ -158,6 +160,10 @@ const handleInputChange = (e) => {
   <main
     class="min-h-screen flex items-center justify-center text-black bg-white"
   >
+  
+    <!-- Home Page -->
+    <HomePage />
+  
     <!-- How to Play Page -->
     <section v-show="isHowToPlayPage">
       <div class="bg-white">
@@ -404,7 +410,7 @@ const handleInputChange = (e) => {
         </div>
       </div>
     </section>
-    
+   
   </main>
 </template>
 
