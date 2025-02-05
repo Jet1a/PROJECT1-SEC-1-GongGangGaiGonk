@@ -1,14 +1,14 @@
 <script setup>
-
-import HomePage from "./HomePage.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import wordDictionary from "./data/words_dictionary";
 
-const isHomePage = ref(false);
-const isHowToPlayPage = ref(true);
+const isHomePage = ref(true);
+const isHowToPlayPage = ref(false);
 const isGamePage = ref(false);
 const isResultPage = ref(false);
 
+const userName = ref("");
+const isError = ref(false);
 const stepCounter = ref(0);
 const score = ref(0);
 const totalTime = ref(0);
@@ -48,6 +48,23 @@ const description = [
   },
 ];
 
+const handleSubmit = () => {
+  if (!userName.value.trim()) {
+    isError.value = true;
+  } else {
+    isError.value = false;
+    isHomePage.value = false;
+    isHowToPlayPage.value = true;
+    console.log("UserName:", userName.value);
+  }
+};
+
+watch(userName, (newValue) => {
+  if (newValue.trim()) {
+    isError.value = false;
+  }
+});
+
 const increment = () => {
   if (stepCounter.value < description.length - 1) {
     stepCounter.value++;
@@ -65,25 +82,6 @@ const decrement = () => {
   console.log(`decrement : ${stepCounter.value}`);
 };
 
-const onBackHome = () => {
-  isGamePage.value = false;
-  isResultPage.value = false;
-  isHowToPlayPage.value = false;
-};
-
-const playAgain = () => {
-  isGamePage.value = true;
-  isResultPage.value = false;
-  score.value = 0;
-  counter.value = 15;
-  wordCount.value = 0;
-  clearInterval(interval.value);
-  usedWord.value = [];
-  inputError.value = "";
-  notification.value = "Enter a word to start";
-  nextLetter.value = "";
-};
-
 const onReset = () => {
   score.value = 0;
   counter.value = 15;
@@ -93,6 +91,20 @@ const onReset = () => {
   inputError.value = "";
   notification.value = "Enter a word to start";
   nextLetter.value = "";
+};
+
+const playAgain = () => {
+  onReset();
+  isGamePage.value = true;
+  isResultPage.value = false;
+};
+
+const backHome = () => {
+  onReset();
+  isGamePage.value = false;
+  isResultPage.value = false;
+  isHowToPlayPage.value = false;
+  isHomePage.value = true;
 };
 
 const handleInputChange = (e) => {
@@ -127,7 +139,7 @@ const handleInputChange = (e) => {
     return;
   }
 
-  counter.value = 2;
+  counter.value = 15;
 
   if (interval.value) {
     clearInterval(interval.value);
@@ -160,10 +172,46 @@ const handleInputChange = (e) => {
   <main
     class="min-h-screen flex items-center justify-center text-black bg-white"
   >
-  
     <!-- Home Page -->
-    <HomePage />
-  
+    <section v-show="isHomePage">
+      <div
+        class="flex flex-col items-center justify-center text-center px-4 sm:px-6 md:px-8"
+      >
+        <div class="flex flex-col items-center">
+          <h1 class="text-[72px] font-bold text-[#1882FF] -tracking-[-0.1em]">
+            TORKUM
+          </h1>
+          <h2 class="text-[24px] font-bold">Word Chain Game</h2>
+          <p class="text-sm mt-2 max-w-md">
+            Word Chain is an exciting word game where each new word must begin
+            with the final letter of the preceding word. Challenge your
+            vocabulary skills and see how long of a chain you can create!
+          </p>
+        </div>
+
+        <div class="mt-6 w-full max-w-md">
+          <form
+            @submit.prevent="handleSubmit"
+            class="flex flex-col gap-4 items-center"
+          >
+            <input
+              v-model.trim="userName"
+              type="text"
+              placeholder="Please enter your name"
+              class="w-full h-16 px-4 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400 drop-shadow-md bg-white"
+              :class="{ 'border-red-500 placeholder-red-500': isError }"
+            />
+            <button
+              type="submit"
+              class="w-full max-w-[294px] h-14 bg-[#1882FF] text-white font-semibold rounded-lg drop-shadow-md hover:bg-blue-600 transition delay-150 duration-300 ease-in-out"
+            >
+              Play!!
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <!-- How to Play Page -->
     <section v-show="isHowToPlayPage">
       <div class="bg-white">
@@ -259,7 +307,7 @@ const handleInputChange = (e) => {
       <div class="flex flex-col space-y-4">
         <section class="flex items-center justify-between w-[574px]">
           <button
-            @click="isGamePage = !isGamePage"
+            @click="backHome"
             class="px-8 py-2 border rounded-md shadow-md bg-white"
           >
             Back
@@ -341,10 +389,11 @@ const handleInputChange = (e) => {
     </section>
 
     <!-- Result Page -->
-    <section class="w-[700px]" v-show="isResultPage">
-      <div class="mb-10">
+    <section v-show="isResultPage">
+      <div class="w-[600px] mb-10">
         <button
-          class="text-2xl font-bold border border-gray-200 rounded-md px-8 py-0.5 shadow-lg"
+          @click="backHome"
+          class="px-8 py-2 border rounded-md shadow-md bg-white"
         >
           Back
         </button>
@@ -410,7 +459,6 @@ const handleInputChange = (e) => {
         </div>
       </div>
     </section>
-   
   </main>
 </template>
 
