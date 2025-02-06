@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, watchEffect } from "vue";
 import wordDictionary from "./data/words_dictionary";
 
 const isHomePage = ref(true);
@@ -141,31 +141,42 @@ const handleInputChange = (e) => {
 
   counter.value = 15;
 
-  if (interval.value) {
-    clearInterval(interval.value);
-  }
-
-  interval.value = setInterval(() => {
-    if (counter.value > 0) {
-      counter.value--;
-    } else {
-      clearInterval(interval.value);
-      interval.value = null;
-      isGamePage.value = false;
-      isResultPage.value = true;
-    }
-  }, 1000);
-
   score.value += wordInput.value.length;
   wordCount.value++;
 
-  usedWord.value.push(wordInput.value);
+  usedWord.value.unshift(wordInput.value);
   nextLetter.value = wordInput.value.slice(-1);
 
   notification.value = `Next word must begin with '${nextLetter.value}'`;
   inputError.value = "";
   wordInput.value = "";
 };
+
+watch(inputError, (newValue) => {
+  if (newValue) {
+    setTimeout(() => {
+      inputError.value = "";
+    }, 2000);
+  }
+});
+
+watchEffect(() => {
+  if (isGamePage.value) {
+    counter.value = 15;
+    clearInterval(interval.value);
+    interval.value = setInterval(() => {
+      if (counter.value > 0) {
+        counter.value--;
+      } else {
+        clearInterval(interval.value);
+        isGamePage.value = false;
+        isResultPage.value = true;
+      }
+    }, 1000);
+  } else {
+    clearInterval(interval.value);
+  }
+});
 </script>
 
 <template>
@@ -304,17 +315,17 @@ const handleInputChange = (e) => {
 
     <!-- Game Page -->
     <section v-show="isGamePage">
-      <div class="flex flex-col space-y-4">
-        <section class="flex items-center justify-between w-[574px]">
+      <div class="flex flex-col space-y-4 w-[280px] sm:w-[400px] md:w-[574px]">
+        <section class="flex items-center justify-between">
           <button
             @click="backHome"
-            class="px-8 py-2 border rounded-md shadow-md bg-white"
+            class="px-6 sm:px-8 py-1 sm:py-2 border rounded-md shadow-md bg-white"
           >
             Back
           </button>
           <span @click="onReset" class="mr-4 cursor-pointer">
             <svg
-              class="w-6"
+              class="w-5 sm:w-6"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
             >
@@ -324,24 +335,26 @@ const handleInputChange = (e) => {
             </svg>
           </span>
         </section>
-        <section class="flex items-center justify-between px-8">
+        <section class="flex items-center justify-between px-2 sm:px-8">
           <div class="flex flex-col items-center justify-center">
             <span>Score</span>
-            <span class="text-5xl">{{ score }}</span>
+            <span class="text-3xl sm:text-5xl">{{ score }}</span>
           </div>
           <div class="flex flex-col items-center justify-center">
             <span>Time</span>
-            <span class="text-5xl countdown">
+            <span class="text-3xl sm:text-5xl countdown">
               <span :style="{ '--value': counter }"></span>
             </span>
           </div>
           <div class="flex flex-col items-center justify-center">
             <span>Word Count</span>
-            <span class="text-5xl">{{ wordCount }}</span>
+            <span class="text-3xl sm:text-5xl">{{ wordCount }}</span>
           </div>
         </section>
 
-        <section class="flex items-center justify-center flex-col space-y-4">
+        <section
+          class="flex items-center justify-center flex-col space-y-4 pb-4"
+        >
           <div
             :class="{
               'w-full text-center py-2 rounded-sm': true,
@@ -351,7 +364,7 @@ const handleInputChange = (e) => {
           >
             <span
               :class="{
-                'text-2xl font-semibold': true,
+                'text-md sm:text-2xl font-semibold': true,
                 'text-white': !inputError,
                 'text-red-500': inputError,
               }"
@@ -362,7 +375,7 @@ const handleInputChange = (e) => {
 
           <div class="border rounded-xl shadow-md">
             <input
-              class="w-[574px] h-[65px] text-2xl p-4 bg-white rounded shadow-inner uppercase outline-none"
+              class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner uppercase outline-none"
               @keydown.enter="handleInputChange"
               v-model="wordInput"
               type="text"
@@ -370,16 +383,18 @@ const handleInputChange = (e) => {
           </div>
           <div
             v-show="usedWord.length > 0"
-            class="border rounded-md shadow-md w-full max-w-[575px] p-4"
+            class="border rounded-md shadow-md w-[280px] sm:w-[400px] md:w-[574px] p-4 h-[210px] overflow-auto sm:h-[300px]"
           >
-            <span class="text-lg font-light text-neutral-500">Used word</span>
+            <span class="text-md sm:text-lg font-light text-neutral-500"
+              >Used word</span
+            >
             <div
-              class="flex items-center justify-start flex-wrap gap-4 uppercase font-semibold text-[#777777] pt-4"
+              class="flex items-center justify-start flex-wrap gap-4 uppercase font-semibold text-[#777777] py-4"
             >
               <span
                 v-for="(value, key) in usedWord"
                 :key="key"
-                class="w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
+                class="text-sm sm:text-md w-fit px-4 py-2 bg-[#d9d9d9] rounded-lg text-center"
                 >{{ value }}</span
               >
             </div>
