@@ -141,6 +141,22 @@ const handleInputChange = (e) => {
 
   counter.value = 15;
 
+  if (isGamePage.value) {
+    counter.value = 15;
+    clearInterval(interval.value);
+    interval.value = setInterval(() => {
+      if (counter.value > 0) {
+        counter.value--;
+      } else {
+        clearInterval(interval.value);
+        isGamePage.value = false;
+        isResultPage.value = true;
+      }
+    }, 1000);
+  } else {
+    clearInterval(interval.value);
+  }
+
   score.value += wordInput.value.length;
   wordCount.value++;
 
@@ -157,24 +173,6 @@ watch(inputError, (newValue) => {
     setTimeout(() => {
       inputError.value = "";
     }, 2000);
-  }
-});
-
-watchEffect(() => {
-  if (isGamePage.value) {
-    counter.value = 15;
-    clearInterval(interval.value);
-    interval.value = setInterval(() => {
-      if (counter.value > 0) {
-        counter.value--;
-      } else {
-        clearInterval(interval.value);
-        isGamePage.value = false;
-        isResultPage.value = true;
-      }
-    }, 1000);
-  } else {
-    clearInterval(interval.value);
   }
 });
 </script>
@@ -378,6 +376,7 @@ watchEffect(() => {
               class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner uppercase outline-none"
               @keydown.enter="handleInputChange"
               v-model="wordInput"
+              placeholder="Enter a word here"
               type="text"
             />
           </div>
