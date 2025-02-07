@@ -91,6 +91,7 @@ const onReset = () => {
   inputError.value = "";
   notification.value = "Enter a word to start";
   nextLetter.value = "";
+  stepCounter.value = 0;
 };
 
 const playAgain = () => {
