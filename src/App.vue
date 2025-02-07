@@ -141,6 +141,22 @@ const handleInputChange = (e) => {
 
   counter.value = 15;
 
+  if (isGamePage.value) {
+    counter.value = 15;
+    clearInterval(interval.value);
+    interval.value = setInterval(() => {
+      if (counter.value > 0) {
+        counter.value--;
+      } else {
+        clearInterval(interval.value);
+        isGamePage.value = false;
+        isResultPage.value = true;
+      }
+    }, 1000);
+  } else {
+    clearInterval(interval.value);
+  }
+
   score.value += wordInput.value.length;
   wordCount.value++;
 
@@ -157,24 +173,6 @@ watch(inputError, (newValue) => {
     setTimeout(() => {
       inputError.value = "";
     }, 2000);
-  }
-});
-
-watchEffect(() => {
-  if (isGamePage.value) {
-    counter.value = 15;
-    clearInterval(interval.value);
-    interval.value = setInterval(() => {
-      if (counter.value > 0) {
-        counter.value--;
-      } else {
-        clearInterval(interval.value);
-        isGamePage.value = false;
-        isResultPage.value = true;
-      }
-    }, 1000);
-  } else {
-    clearInterval(interval.value);
   }
 });
 </script>
@@ -212,14 +210,26 @@ watchEffect(() => {
               class="w-full h-16 px-4 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400 drop-shadow-md bg-white"
               :class="{ 'border-red-500 placeholder-red-500': isError }"
             />
-      <button type="submit" class="w-full max-w-[294px] h-14 bg-[#1882FF] text-white font-semibold rounded-lg drop-shadow-md flex items-center justify-center gap-2 hover:bg-blue-600 transition delay-150 duration-300 ease-in-out">
-        <span class="flex items-center justify-center gap-2">
-          <span>Start Game</span>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-          <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z" clip-rule="evenodd" />
-        </svg>
-          </span>
-      </button>
+            <button
+              type="submit"
+              class="w-full max-w-[294px] h-14 bg-[#1882FF] text-white font-semibold rounded-lg drop-shadow-md flex items-center justify-center gap-2 hover:bg-blue-600 transition delay-150 duration-300 ease-in-out"
+            >
+              <span class="flex items-center justify-center gap-2">
+                <span>Start Game</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-6 h-6"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </span>
+            </button>
           </form>
         </div>
       </div>
@@ -380,6 +390,7 @@ watchEffect(() => {
               class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner uppercase outline-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               @keydown.enter="handleInputChange"
               v-model="wordInput"
+              placeholder="Enter a word here"
               type="text"
             />
           </div>
