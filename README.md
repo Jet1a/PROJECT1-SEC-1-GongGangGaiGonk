@@ -15,7 +15,7 @@
 ## ขอบเขตของงาน (Week 4)
 - 66130500016 นายเจตภูมิ ชาญทวีคุณ (Responsive Style & Function ต่างๆสำหรับหน้า Game)
 - 66130500023 นายชาคริต ภูแล่นนา (Result Page)
-- 66130500031 นายณัฐภัทร์  หลำนุ้ย (Home Page)
+- 66130500031 นายณัฐภัทร์  หลำนุ้ย (Adding Responsive,Update Start button and test prototype by user)
 - 66130500053 นายเนติพงศ์  สุขเกษม (How to Play Page)
 
 
