@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, watchEffect } from "vue";
+import { ref, watch, watchEffect, computed } from "vue";
 import wordDictionary from "./data/words_dictionary";
 
 const isHomePage = ref(true);
@@ -176,6 +176,13 @@ watchEffect(() => {
   } else {
     clearInterval(interval.value);
   }
+});
+
+const longestWord = computed(() => {
+  return usedWord.value.reduce(
+    (longest, word) => (word.length > longest.length ? word : longest),
+    ""
+  );
 });
 </script>
 
@@ -403,7 +410,7 @@ watchEffect(() => {
       </div>
     </section>
 
-    <!-- Result Page -->
+    <!--Result Page-->
     <section v-show="isResultPage">
       <div class="w-[600px] mb-10">
         <button
@@ -437,11 +444,10 @@ watchEffect(() => {
             <p class="text-3xl sm:text-5xl">{{ wordCount }}</p>
           </div>
         </div>
-        <div
-          class="py-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-8"
-        >
+
+        <div class="py-10 flex items-center justify-center">
           <button
-            class="sm:w-1/4 flex justify-center gap-2 bg-[#1882FF] px-5 py-1.5 text-white fill-white rounded-md font-bold"
+            class="w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white fill-white rounded-md font-bold"
             @click="playAgain"
           >
             <svg
@@ -455,13 +461,15 @@ watchEffect(() => {
             </svg>
             Play Again
           </button>
-          <button
-            class="sm:w-1/4 px-5 py-1.5 font-bold border-2 border-black rounded-md"
-          >
-            See your stats
-          </button>
+        </div>
+        <div class="bg-[#1882FF] text-2xl text-white text-center py-4">
+          <p>
+            <span class="font-bold">{{ longestWord }}</span> is your the longest
+            word
+          </p>
         </div>
       </div>
+
       <div class="border-2 mt-8 py-4 px-8 shadow-md">
         <p class="text-xl text-gray-500">Used word</p>
         <div class="flex flex-wrap">
