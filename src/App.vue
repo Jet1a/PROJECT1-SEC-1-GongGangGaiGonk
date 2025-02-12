@@ -193,8 +193,10 @@ const findLongestWord = () => {
     (longest, word) => (word.length > longest ? word.length : longest),
     0
   );
-});
-
+  return usedWord.value.filter(
+    (word) => word.length === lengthOfLongestWord
+  );
+};
 
 // game mode script
 const gameMode = ref("default");
