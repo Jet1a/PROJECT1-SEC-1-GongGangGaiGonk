@@ -14,10 +14,12 @@
 
 ## ขอบเขตของงาน (Week 4)
 - 66130500016 นายเจตภูมิ ชาญทวีคุณ (Responsive Style & Function ต่างๆสำหรับหน้า Game)
-- 66130500023 นายชาคริต ภูแล่นนา (Result Page)
+- 66130500023 นายชาคริต ภูแล่นนา (Result Page : result score page , back buntton , computed() to show the longest word ,  style and responsive)
 - 66130500031 นายณัฐภัทร์  หลำนุ้ย (Adding Responsive,Update Start button and test prototype by user)
 - 66130500053 นายเนติพงศ์  สุขเกษม (How to Play Page,Update fixed some component bugs and add reset stepcounter in reset function)
 
+## ขอบเขตของงาน (Week 5)
+- 66130500053 นายเนติพงศ์  สุขเกษม (Added 3 new game modes and added UI for selecting additional modes)
 
 ## สมาชิก
 - 66130500016 นายเจตภูมิ ชาญทวีคุณ

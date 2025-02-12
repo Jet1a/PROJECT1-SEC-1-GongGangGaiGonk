@@ -92,6 +92,7 @@ const onReset = () => {
   notification.value = "Enter a word to start";
   nextLetter.value = "";
   stepCounter.value = 0;
+  isTimer.value = true;
 };
 
 const playAgain = () => {
@@ -110,6 +111,9 @@ const backHome = () => {
 
 const handleInputChange = (e) => {
   wordInput.value = e.target.value.trim().toUpperCase();
+  if (e.key === "Enter") {
+    isTimer.value = false;
+  }
 
   if (
     wordInput.value === "" ||
@@ -122,11 +126,17 @@ const handleInputChange = (e) => {
     return;
   }
 
-  if (wordInput.value.length < 3) {
+  if (wordInput.value.length < 3 && chooseWord.value === 3) {
     inputError.value = `Word must be at least 3 character long!`;
     wordInput.value = "";
     return;
   }
+  else if (chooseWord.value && wordInput.value.length !== chooseWord.value) {
+    inputError.value = `Word must be ${chooseWord.value} character long!`;
+    wordInput.value = "";
+    return;
+  }
+
 
   if (!wordInput.value.charAt(0).includes(nextLetter.value)) {
     inputError.value = `Word must start with letter ${nextLetter.value}`;
@@ -140,10 +150,8 @@ const handleInputChange = (e) => {
     return;
   }
 
-  counter.value = 15;
-
   if (isGamePage.value) {
-    counter.value = 15;
+    if(gameMode.value !== "timer") counter.value = chooseTimer.value;
     clearInterval(interval.value);
     interval.value = setInterval(() => {
       if (counter.value > 0) {
@@ -177,30 +185,57 @@ watch(inputError, (newValue) => {
   }
 });
 
-watchEffect(() => {
-  if (isGamePage.value) {
-    counter.value = 15;
-    clearInterval(interval.value);
-    interval.value = setInterval(() => {
-      if (counter.value > 0) {
-        counter.value--;
-      } else {
-        clearInterval(interval.value);
-        isGamePage.value = false;
-        isResultPage.value = true;
-      }
-    }, 1000);
-  } else {
-    clearInterval(interval.value);
-  }
-});
-
 const longestWord = computed(() => {
   return usedWord.value.reduce(
     (longest, word) => (word.length > longest.length ? word : longest),
     ""
   );
 });
+
+
+// game mode script
+const gameMode = ref("default");
+const chooseTimer = ref(15);
+const chooseWord = ref(3);
+const isTimer = ref(true);
+const wordDropdown = ref(null);
+const timeDropdown = ref(null);
+
+const setWord = (word) => {
+  chooseWord.value = word;
+  console.log("Word:", chooseWord.value);
+
+  if (wordDropdown.value) {
+    wordDropdown.value.removeAttribute("open"); 
+  }
+};
+
+const setGameMode = (mode) => {
+  gameMode.value = mode;
+  if (gameMode.value === "Default") {
+    chooseWord.value = 3;
+  }
+};
+const setTimer = (time) => {
+  if (gameMode.value === "timer") {
+    chooseTimer.value = time;  
+  }
+  if (timeDropdown.value) {
+    timeDropdown.value.removeAttribute("open"); 
+  }
+
+};
+
+watchEffect(() => {
+  if (gameMode.value === "timer") {
+    counter.value = chooseTimer.value;
+  }else{
+    counter.value = 15;
+    chooseTimer.value = 15;
+  }
+});
+
+
 </script>
 
 <template>
@@ -243,63 +278,99 @@ const longestWord = computed(() => {
 
     <!-- How to Play Page -->
     <section v-show="isHowToPlayPage">
-        <div class="bg-white">
-          <div class="grid w-full place-items-center py-9">
-            <div class="w-full">
-              <div class="flex justify-center mb-9">
-                <ul class="steps steps-horizontal">
-                  <li v-for="(step, index) in description" :key="index" class="step" :class="{
-                    'mx-auto sm:mx-2 step-primary after:!bg-[#1882FF] before:!bg-[#1882FF] after:!text-white ':
+      <div class="bg-white">
+        <div class="grid w-full md:w-[700px] place-items-center py-9">
+          <div class="w-full">
+            <div class="flex justify-center mb-9">
+              <ul class="steps steps-horizontal">
+                <li v-for="(step, index) in description" :key="index" class="step" :class="{
+                  'mx-auto sm:mx-2 step-primary after:!bg-[#1882FF] before:!bg-[#1882FF] after:!text-white ':
                     stepCounter >= index,
-                  }">
-                    {{ step.keyWord }}
-                  </li>
-                </ul>
+                }">
+                  {{ step.keyWord }}
+                </li>
+              </ul>
+            </div>
+            <div
+              class="hero-content text-center border-2 rounded-xl border-gray-400 p-[40px] w-full h-[30rem] mx-auto bg-white shadow-lg">
+              <div class="max-w-md mx-auto">
+                <h1 class="text-5xl font-bold text-[#1882FF] my-3">
+                  How to Play ?
+                </h1>
+                <img :src="`${description[stepCounter].img}`" alt="how-to-play" class="w-[70%] mx-auto my-6" />
+                <p class="text-black font-semibold">
+                  {{ description[stepCounter].title }}
+                </p>
+                <p class="py-2 mb-8 text-gray-500">
+                  {{ description[stepCounter].content }}
+                </p>
               </div>
-              <div
-                class="hero-content text-center border-2 rounded-xl border-gray-400 p-[40px] w-full h-[30rem] mx-auto bg-white shadow-lg">
-                <div class="max-w-md mx-auto">
-                  <h1 class="text-5xl font-bold text-[#1882FF] my-3">
-                    How to Play ?
-                  </h1>
-                  <img :src="`${description[stepCounter].img}`" alt="how-to-play" class="w-[70%] mx-auto my-6" />
-                  <p class="text-black font-semibold">
-                    {{ description[stepCounter].title }}
-                  </p>
-                  <p class="py-2 mb-8 text-gray-500">
-                    {{ description[stepCounter].content }}
-                  </p>
-                </div>
-              </div>
-              <div class="gap-4 grid grid-cols-2 max-w-[80%] mx-auto mt-9">
-                <button class="btn bg-[#D9D9D9] text-[#595959] border-0" @click="decrement"
-                  :disabled="stepCounter === 0">
-                  <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                      d="M13.729 5.575c1.304-1.074 3.27-.146 3.27 1.544v9.762c0 1.69-1.966 2.618-3.27 1.544l-5.927-4.881a2 2 0 0 1 0-3.088l5.927-4.88Z"
-                      clip-rule="evenodd" />
-                  </svg>
-                  Back
-                </button>
-                <button class="btn bg-[#1882FF] border-0 text-white" @click="increment">
-                  Next
-                  <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                      d="M10.271 5.575C8.967 4.501 7 5.43 7 7.12v9.762c0 1.69 1.967 2.618 3.271 1.544l5.927-4.881a2 2 0 0 0 0-3.088l-5.927-4.88Z"
-                      clip-rule="evenodd" />
-                  </svg>
-                </button>
-              </div>
+            </div>
+            <div class="gap-4 grid grid-cols-2 max-w-[80%] mx-auto mt-9">
+              <button class="btn bg-[#D9D9D9] text-[#595959] border-0" @click="decrement" :disabled="stepCounter === 0">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                  width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                    d="M13.729 5.575c1.304-1.074 3.27-.146 3.27 1.544v9.762c0 1.69-1.966 2.618-3.27 1.544l-5.927-4.881a2 2 0 0 1 0-3.088l5.927-4.88Z"
+                    clip-rule="evenodd" />
+                </svg>
+                Back
+              </button>
+              <button class="btn bg-[#1882FF] border-0 text-white" @click="increment">
+                Next
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                  width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                    d="M10.271 5.575C8.967 4.501 7 5.43 7 7.12v9.762c0 1.69 1.967 2.618 3.271 1.544l5.927-4.881a2 2 0 0 0 0-3.088l-5.927-4.88Z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
+      </div>
     </section>
 
     <!-- Game Page -->
     <section v-show="isGamePage">
       <div class="flex flex-col space-y-4 w-[280px] sm:w-[400px] md:w-[574px]">
+        <div class="">
+          <div class="">
+            <h1 class="text-3xl sm:text-5xl font-bold text-center">Word Chain</h1>
+          </div>
+          <!-- class="tooltip" data-tip="hello" -->
+          <div class="flex justify-center my-4 mt-6" v-show="isTimer">
+            <ul class="menu lg:menu-horizontal rounded-box bg-white shadow-lg">
+              <li class="tooltip bg-white" data-tip="Easy"><a @click="setGameMode('Default')">Default Game</a></li>
+
+              <li>
+                <details ref="timeDropdown">
+                  <summary class="tooltip px-9" data-tip="Normal" @click="setGameMode('timer')">Timer!!</summary>
+                  <ul class="bg-white z-50" menu-dropdown	>
+                    <li><a @click="setTimer(15)">15 sec</a></li>
+                    <li><a @click="setTimer(30)">30 sec</a></li>
+                    <li><a @click="setTimer(60)">60 sec</a></li>
+                  </ul>
+                </details>
+              </li>
+
+              <li>
+                <details ref="wordDropdown">
+                  <summary class="tooltip" data-tip="Difficult" @click="setGameMode('moreWord')">More Word</summary>
+                  <ul class="bg-white z-50"	>
+                    <li><a @click="setWord(4)">4 word</a></li>
+                    <li><a @click="setWord(5)">5 word</a></li>
+                    <li><a @click="setWord(6)">6 word</a></li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+          </div>
+          <div class="flex justify-center my-1">
+           <span class="text-red-700"> Word must be at least {{ chooseWord }} character long!</span>
+          </div>
+        </div>
+
         <section class="flex items-center justify-between">
           <button @click="backHome" class="px-6 sm:px-8 py-1 sm:py-2 border rounded-md shadow-md bg-white">
             Back
@@ -387,13 +458,8 @@ const longestWord = computed(() => {
         <div class="py-10 flex items-center justify-center">
           <button
             class="w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white fill-white rounded-md font-bold"
-            @click="playAgain"
-          >
-            <svg
-              class="w-6"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-            >
+            @click="playAgain">
+            <svg class="w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
               <path
                 d="M463.5 224l8.5 0c13.3 0 24-10.7 24-24l0-128c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8l119.5 0z" />
             </svg>
