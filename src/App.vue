@@ -177,18 +177,21 @@ const handleInputChange = (e) => {
   wordInput.value = "";
 };
 
-watch(inputError, (newValue) => {
-  if (newValue) {
-    setTimeout(() => {
-      inputError.value = "";
-    }, 2000);
-  }
-});
 
-const longestWord = computed(() => {
-  return usedWord.value.reduce(
-    (longest, word) => (word.length > longest.length ? word : longest),
-    ""
+
+
+
+
+
+
+
+
+
+
+const findLongestWord = () => {
+  const lengthOfLongestWord = usedWord.value.reduce(
+    (longest, word) => (word.length > longest ? word.length : longest),
+    0
   );
 });
 
