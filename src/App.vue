@@ -6,6 +6,7 @@ const isHomePage = ref(true);
 const isHowToPlayPage = ref(false);
 const isGamePage = ref(false);
 const isResultPage = ref(false);
+const isAchievementPage = ref(false);
 
 const userName = ref("");
 const isError = ref(false);
@@ -54,7 +55,7 @@ const handleSubmit = () => {
   } else {
     isError.value = false;
     isHomePage.value = false;
-    isHowToPlayPage.value = true;
+    isGamePage.value = true;
     console.log("UserName:", userName.value);
   }
 };
@@ -68,18 +69,13 @@ watch(userName, (newValue) => {
 const increment = () => {
   if (stepCounter.value < description.length - 1) {
     stepCounter.value++;
-  } else if (stepCounter.value === description.length - 1) {
-    isHowToPlayPage.value = false;
-    isGamePage.value = true;
-  }
-  console.log(`increment : ${stepCounter.value}`);
+  } 
 };
 
 const decrement = () => {
   if (stepCounter.value > 0) {
     stepCounter.value--;
   }
-  console.log(`decrement : ${stepCounter.value}`);
 };
 
 const onReset = () => {
@@ -126,12 +122,12 @@ const handleInputChange = (e) => {
     return;
   }
 
-  if (wordInput.value.length < 3 && chooseWord.value === 3) {
+  if (wordInput.value.length < 3 && gameMode.value === "default") {
     inputError.value = `Word must be at least 3 character long!`;
     wordInput.value = "";
     return;
   }
-  else if (chooseWord.value && wordInput.value.length !== chooseWord.value) {
+  else if (chooseWord.value && wordInput.value.length < chooseWord.value && gameMode.value === "moreWord") {
     inputError.value = `Word must be ${chooseWord.value} character long!`;
     wordInput.value = "";
     return;
@@ -228,7 +224,17 @@ const setTimer = (time) => {
   if (timeDropdown.value) {
     timeDropdown.value.removeAttribute("open"); 
   }
+};
 
+
+const clickToAchievement = () => {
+  isAchievementPage.value = true;
+  isHomePage.value = false;
+};
+
+const clickToHowToPlay = () => {
+  isHowToPlayPage.value = true;
+  isHomePage.value = false;
 };
 
 watchEffect(() => {
@@ -277,6 +283,22 @@ watchEffect(() => {
               </span>
             </button>
           </form>
+          <div class="flex items-center justify-center gap-4 mt-4">
+            <button type="submit" @click="clickToHowToPlay"
+              class="w-full max-w-[294px] h-14 bg-[#BFC1C2] text-white font-semibold rounded-lg drop-shadow-md flex items-center justify-center gap-2 hover:bg-blue-500 transition delay-150 duration-300 ease-in-out">
+              <span class="flex items-center justify-center gap-2">
+                <span>How To Play</span>
+              </span>
+            </button>
+          </div>
+          <div class="flex items-center justify-center gap-4 mt-4">
+            <button type="submit" @click="clickToAchievement"
+              class="w-full max-w-[294px] h-14 bg-[#BFC1C2] text-white font-semibold rounded-lg drop-shadow-md flex items-center justify-center gap-2 hover:bg-blue-500 transition delay-150 duration-300 ease-in-out">
+              <span class="flex items-center justify-center gap-2">
+                <span>Achievement</span>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -312,7 +334,7 @@ watchEffect(() => {
               </div>
             </div>
             <div class="gap-4 grid grid-cols-2 max-w-[80%] mx-auto mt-9">
-              <button class="btn bg-[#D9D9D9] text-[#595959] border-0" @click="decrement" :disabled="stepCounter === 0">
+              <button class="btn bg-[#D9D9D9] text-[#595959] border-0" @click="stepCounter == 0 ? backHome() : decrement()" :class="stepCounter === 2 ? 'bg-blue-500 text-white' : 'bg-[#D9D9D9]'">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                   width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                   <path fill-rule="evenodd"
@@ -321,7 +343,7 @@ watchEffect(() => {
                 </svg>
                 Back
               </button>
-              <button class="btn bg-[#1882FF] border-0 text-white" @click="increment">
+              <button class="btn bg-[#1882FF] border-0 text-white" @click="increment" :disabled="stepCounter === 2">
                 Next
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                   width="24" height="24" fill="currentColor" viewBox="0 0 24 24">

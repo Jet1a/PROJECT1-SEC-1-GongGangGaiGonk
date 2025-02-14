@@ -19,7 +19,7 @@
 - 66130500053 นายเนติพงศ์  สุขเกษม (How to Play Page,Update fixed some component bugs and add reset stepcounter in reset function)
 
 ## ขอบเขตของงาน (Week 5)
-- 66130500053 นายเนติพงศ์  สุขเกษม (Added 3 new game modes and added UI for selecting additional modes)
+- 66130500053 นายเนติพงศ์  สุขเกษม (Added 3 new game modes and added UI for selecting additional modes, redesign homepage for handle Achievement and fix link every page ,fix bug in new game mode)
 
 ## สมาชิก
 - 66130500016 นายเจตภูมิ ชาญทวีคุณ
