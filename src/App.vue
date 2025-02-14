@@ -7,6 +7,7 @@ const isHowToPlayPage = ref(false);
 const isGamePage = ref(false);
 const isResultPage = ref(false);
 const isAchievementPage = ref(false);
+const isShowStats = ref(false);
 
 const userName = ref("");
 const isError = ref(false);
@@ -21,7 +22,8 @@ const usedWord = ref([]);
 const inputError = ref("");
 const notification = ref("Enter a word to start");
 const nextLetter = ref("");
-
+const longestWords = ref([]);
+const allStats = ref([]);
 const description = [
   {
     step: 1,
@@ -215,10 +217,17 @@ const handleInputChange = (e) => {
     interval.value = setInterval(() => {
       if (counter.value > 0) {
         counter.value--;
+        totalTime.value++;
       } else {
         clearInterval(interval.value);
+        allStats.value.push({
+          userName: userName.value,
+          score: score.value,
+          totalTime: totalTime.value,
+        });
         isGamePage.value = false;
         isResultPage.value = true;
+        isShowStats.value = false;
       }
     }, 1000);
   } else {
@@ -237,20 +246,13 @@ const handleInputChange = (e) => {
   wordInput.value = "";
 };
 
-watch(inputError, (newValue) => {
-  if (newValue) {
-    setTimeout(() => {
-      inputError.value = "";
-    }, 2000);
-  }
-});
-
-const longestWord = computed(() => {
-  return usedWord.value.reduce(
-    (longest, word) => (word.length > longest.length ? word : longest),
-    ""
+const findLongestWord = () => {
+  const lengthOfLongestWord = usedWord.value.reduce(
+    (longest, word) => (word.length > longest ? word.length : longest),
+    0
   );
-});
+  return usedWord.value.filter((word) => word.length === lengthOfLongestWord);
+};
 
 // game mode script
 const gameMode = ref("default");
@@ -262,7 +264,7 @@ const timeDropdown = ref(null);
 
 const setWord = (word) => {
   chooseWord.value = word;
-  console.log("Word:", chooseWord.value);
+  console.log("Word:" + chooseWord.value);
 
   if (wordDropdown.value) {
     wordDropdown.value.removeAttribute("open");
@@ -358,8 +360,18 @@ watchEffect(() => {
     chooseTimer.value = 15;
   }
 });
+watch(isGamePage, (newValue) => {
+  if (!newValue) longestWords.value = findLongestWord();
+});
 
-// Achievement logic
+const showStats = () => {
+  isShowStats.value = true;
+};
+
+const showUsedWord = () => {
+  isShowStats.value = false;
+}
+
 </script>
 
 <template>
@@ -753,8 +765,8 @@ watchEffect(() => {
     </section>
 
     <!--Result Page-->
-    <section v-show="isResultPage">
-      <div class="w-[600px] mb-10">
+    <section v-show="isResultPage" class="w-[600px] p-3">
+      <div class="mb-5">
         <button
           @click="backHome"
           class="px-8 py-2 border rounded-md shadow-md bg-white"
@@ -768,28 +780,30 @@ watchEffect(() => {
           class="flex flex-col items-center sm:flex-row py-3 border-b w-full"
         >
           <div
-            class="flex w-1/2 justify-between sm:flex-col sm:items-center sm:w-1/3"
+            class="flex w-3/5 justify-between sm:flex-col sm:items-center sm:w-1/3"
           >
             <p class="text-2xl">Score</p>
             <p class="text-3xl sm:text-5xl">{{ score }}</p>
           </div>
           <div
-            class="flex w-1/2 justify-between sm:flex-col items-center sm:w-1/3"
+            class="flex w-3/5 justify-between sm:flex-col items-center sm:w-1/3"
           >
             <p class="text-2xl">Total Time</p>
             <p class="text-3xl sm:text-5xl">{{ totalTime }}</p>
           </div>
           <div
-            class="flex w-1/2 justify-between items-start sm:flex-col sm:items-center sm:w-1/3"
+            class="flex w-3/5 justify-between items-start sm:flex-col sm:items-center sm:w-1/3"
           >
             <p class="text-2xl">Word Count</p>
             <p class="text-3xl sm:text-5xl">{{ wordCount }}</p>
           </div>
         </div>
 
-        <div class="py-10 flex items-center justify-center">
+        <div
+          class="py-10 flex flex-col gap-3 items-center justify-center md:flex-row md:gap-8"
+        >
           <button
-            class="w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white fill-white rounded-md font-bold"
+            class="w-3/5 sm:w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white text-xl fill-white rounded-md font-bold"
             @click="playAgain"
           >
             <svg
@@ -803,16 +817,36 @@ watchEffect(() => {
             </svg>
             Play Again
           </button>
+          <button
+            class="w-3/5 sm:w-1/3 bg-[#1882FF] px-5 py-1.5 text-white text-xl font-bold rounded-md"
+            v-show="!isShowStats"
+            @click="showStats"
+          >
+            Show stats
+          </button>
+          <button
+            class="w-3/5 sm:w-1/3 bg-[#1882FF] px-5 py-1.5 text-white text-xl font-bold rounded-md"
+            v-show="isShowStats"
+            @click="showUsedWord"
+          >
+            Used word
+          </button>
         </div>
-        <div class="bg-[#1882FF] text-2xl text-white text-center py-4">
-          <p>
-            <span class="font-bold">{{ longestWord }}</span> is your the longest
-            word
-          </p>
+        <div class="bg-[#1882FF] text-2xl text-white text-center py-4 px-1">
+          <p>Here your the longest word</p>
+          <div class="mt-2">
+            <span
+              v-for="word in longestWords"
+              :key="word"
+              class="bg-gray-200 px-2 py-1 text-black text-lg m-2 rounded-md"
+              >{{ word }}</span
+            >
+          </div>
         </div>
       </div>
 
-      <div class="border-2 mt-8 py-4 px-8 shadow-md">
+      <!-- used word -->
+      <div v-show="!isShowStats" class="border-2 mt-8 py-4 px-8 shadow-md">
         <p class="text-xl text-gray-500">Used word</p>
         <div class="flex flex-wrap">
           <p
@@ -821,6 +855,40 @@ watchEffect(() => {
           >
             {{ word }}
           </p>
+        </div>
+      </div>
+
+      <!-- stats -->
+      <div v-show="isShowStats" class="mt-8 shadow-md">
+        <div class="flex justify-between">
+          <div
+            class="bg-gray-200 text-center border-2 border-r-gray-300 border-l-gray-300  py-2 text-lg font-bold w-1/3"
+          >
+            Name
+          </div>
+          <div
+            class="bg-gray-200 text-center border-2 border-r-gray-300 py-2 text-lg font-bold w-1/3"
+          >
+            Score
+          </div>
+          <div
+            class="bg-gray-200 text-center border=2 border-r-gray-300 py-2 text-lg font-bold w-1/3"
+          >
+            Total time
+          </div>
+        </div>
+        <div class="border border-gray-300">
+          <div
+            v-for="(stats) in allStats"
+            class="grid grid-cols-3 grid-flow-row"
+          >
+            <div
+              v-for="(information) in stats"
+              class="text-center py-2 border border-r-gray-300"
+            >
+              {{ information }}
+            </div>
+          </div>
         </div>
       </div>
     </section>
