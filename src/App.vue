@@ -253,7 +253,6 @@ const findLongestWord = () => {
   );
   return usedWord.value.filter((word) => word.length === lengthOfLongestWord);
 };
-});
 
 // game mode script
 const gameMode = ref("default");
@@ -265,7 +264,7 @@ const timeDropdown = ref(null);
 
 const setWord = (word) => {
   chooseWord.value = word;
-  console.log("Word:", chooseWord.value);
+  console.log("Word:" + chooseWord.value);
 
   if (wordDropdown.value) {
     wordDropdown.value.removeAttribute("open");
@@ -361,8 +360,18 @@ watchEffect(() => {
     chooseTimer.value = 15;
   }
 });
+watch(isGamePage, (newValue) => {
+  if (!newValue) longestWords.value = findLongestWord();
+});
 
-// Achievement logic
+const showStats = () => {
+  isShowStats.value = true;
+};
+
+const showUsedWord = () => {
+  isShowStats.value = false;
+}
+
 </script>
 
 <template>
@@ -756,8 +765,8 @@ watchEffect(() => {
     </section>
 
     <!--Result Page-->
-    <section v-show="isResultPage">
-      <div class="w-[600px] mb-10">
+    <section v-show="isResultPage" class="w-[600px] p-3">
+      <div class="mb-5">
         <button
           @click="backHome"
           class="px-8 py-2 border rounded-md shadow-md bg-white"
@@ -771,19 +780,19 @@ watchEffect(() => {
           class="flex flex-col items-center sm:flex-row py-3 border-b w-full"
         >
           <div
-            class="flex w-1/2 justify-between sm:flex-col sm:items-center sm:w-1/3"
+            class="flex w-3/5 justify-between sm:flex-col sm:items-center sm:w-1/3"
           >
             <p class="text-2xl">Score</p>
             <p class="text-3xl sm:text-5xl">{{ score }}</p>
           </div>
           <div
-            class="flex w-1/2 justify-between sm:flex-col items-center sm:w-1/3"
+            class="flex w-3/5 justify-between sm:flex-col items-center sm:w-1/3"
           >
             <p class="text-2xl">Total Time</p>
             <p class="text-3xl sm:text-5xl">{{ totalTime }}</p>
           </div>
           <div
-            class="flex w-1/2 justify-between items-start sm:flex-col sm:items-center sm:w-1/3"
+            class="flex w-3/5 justify-between items-start sm:flex-col sm:items-center sm:w-1/3"
           >
             <p class="text-2xl">Word Count</p>
             <p class="text-3xl sm:text-5xl">{{ wordCount }}</p>
@@ -794,7 +803,7 @@ watchEffect(() => {
           class="py-10 flex flex-col gap-3 items-center justify-center md:flex-row md:gap-8"
         >
           <button
-            class="w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white fill-white rounded-md font-bold"
+            class="w-3/5 sm:w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white text-xl fill-white rounded-md font-bold"
             @click="playAgain"
           >
             <svg
