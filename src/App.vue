@@ -51,6 +51,65 @@ const description = [
   },
 ];
 
+const achievement = ref([
+  {
+    id: 1,
+    name: "That's a Mouthful!",
+    desc: "Submit a word that is at least 10 characters long.",
+    icon: "🐍",
+    bg: "bg-[#a9e35f]",
+    isCompleted: false,
+    shown: false,
+  },
+  {
+    id: 2,
+    name: "Marathon Chainer",
+    desc: "Successfully chain 20 words in a row.",
+    icon: "👟",
+    bg: "bg-[#ff91c6]",
+    isCompleted: false,
+    shown: false,
+  },
+  {
+    id: 3,
+    name: "Lucky Seven",
+    desc: "Play a word that is exactly 7 letters long.",
+    icon: "🍀",
+    bg: "bg-[#b7edb7]",
+    isCompleted: false,
+    shown: false,
+  },
+  {
+    id: 4,
+    name: "Silent Strategist",
+    desc: "Play 5 words that contain the letter 'S'.",
+    icon: "🤫",
+    bg: "bg-[#b3d4ff]",
+    isCompleted: false,
+    shown: false,
+  },
+  {
+    id: 5,
+    name: "Final Countdown",
+    desc: "Use a word that ends in 'Z'.",
+    icon: "⏳",
+    bg: "bg-[#fcd46f]",
+    isCompleted: false,
+    shown: false,
+  },
+  {
+    id: 6,
+    name: "Achievement Hunter",
+    desc: "Collect all achievement.",
+    icon: "🏆",
+    bg: "bg-[#5487ff]",
+    isCompleted: false,
+    shown: false,
+  },
+]);
+
+const visibleAchievement = ref([]);
+
 const handleSubmit = () => {
   if (!userName.value.trim()) {
     isError.value = true;
@@ -104,11 +163,13 @@ const backHome = () => {
   isGamePage.value = false;
   isResultPage.value = false;
   isHowToPlayPage.value = false;
+  isAchievementPage.value = false;
   isHomePage.value = true;
 };
 
 const handleInputChange = (e) => {
   wordInput.value = e.target.value.trim().toUpperCase();
+
   if (e.key === "Enter") {
     isTimer.value = false;
   }
@@ -179,6 +240,7 @@ const handleInputChange = (e) => {
   usedWord.value.unshift(wordInput.value);
   nextLetter.value = wordInput.value.slice(-1);
 
+  checkAchievement(wordInput.value);
   notification.value = `Next word must begin with '${nextLetter.value}'`;
   inputError.value = "";
   wordInput.value = "";
@@ -191,6 +253,7 @@ const findLongestWord = () => {
   );
   return usedWord.value.filter((word) => word.length === lengthOfLongestWord);
 };
+});
 
 // game mode script
 const gameMode = ref("default");
@@ -234,6 +297,62 @@ const clickToHowToPlay = () => {
   isHomePage.value = false;
 };
 
+const checkAchievement = (wordInput) => {
+  if (wordInput.length >= 10) {
+    achievement.value
+      .filter((achievement) => achievement.id === 1)
+      .forEach((achievement) => (achievement.isCompleted = true));
+  }
+  if (wordCount.value >= 20) {
+    achievement.value
+      .filter((achievement) => achievement.id === 2)
+      .forEach((achievement) => (achievement.isCompleted = true));
+  }
+  if (wordInput.length === 7) {
+    achievement.value
+      .filter((achievement) => achievement.id === 3)
+      .forEach((achievement) => (achievement.isCompleted = true));
+  }
+  if (usedWord.value.filter((word) => word.includes("S")).length >= 5) {
+    achievement.value
+      .filter((achievement) => achievement.id === 4)
+      .forEach((achievement) => (achievement.isCompleted = true));
+  }
+  if (wordInput.endsWith("Z")) {
+    achievement.value
+      .filter((achievement) => achievement.id === 5)
+      .forEach((achievement) => (achievement.isCompleted = true));
+  }
+  if (
+    achievement.value
+      .filter((achievement) => achievement.id !== 6)
+      .every((achievement) => achievement.isCompleted === true)
+  ) {
+    achievement.value
+      .filter((achievement) => achievement.id === 6)
+      .forEach((achievement) => (achievement.isCompleted = true));
+  }
+};
+
+watch(
+  achievement,
+  (newAchievement) => {
+    newAchievement.forEach((achievement) => {
+      if (achievement.isCompleted && !achievement.shown) {
+        achievement.shown = true;
+        visibleAchievement.value.push(achievement);
+
+        setTimeout(() => {
+          visibleAchievement.value = visibleAchievement.value.filter(
+            (ach) => ach.id !== achievement.id
+          );
+        }, 3000);
+      }
+    });
+  },
+  { deep: true }
+);
+
 watchEffect(() => {
   if (gameMode.value === "timer") {
     counter.value = chooseTimer.value;
@@ -243,18 +362,7 @@ watchEffect(() => {
   }
 });
 
-watch(isGamePage, (newValue) => {
-  console.log("longest word");
-  if (!newValue) longestWords.value = findLongestWord();
-});
-
-const showStats = () => {
-  isShowStats.value = true;
-};
-
-const showUsedWord = () => {
-  isShowStats.value = false;
-}
+// Achievement logic
 </script>
 
 <template>
@@ -267,7 +375,9 @@ const showUsedWord = () => {
         class="flex flex-col items-center justify-center text-center px-4 sm:px-6 md:px-8"
       >
         <div class="flex flex-col items-center">
-          <h1 class="text-[72px] font-bold text-[#1882FF] -tracking-[-0.1em]">
+          <h1
+            class="text-[72px] font-bold text-[#1882FF] sm:-tracking-[-0.1em]"
+          >
             TORKUM
           </h1>
           <h2 class="text-[24px] font-bold">Word Chain Game</h2>
@@ -334,6 +444,62 @@ const showUsedWord = () => {
             </button>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Achievement Page -->
+    <section v-show="isAchievementPage">
+      <div
+        class="flex flex-col space-y-4 w-[300px] sm:w-[600px] md:w-[700px] border rounded shadow-md p-4"
+      >
+        <h1 class="text-3xl text-[#1882ff] sm:text-4xl font-bold text-center">
+          Achievement🏆
+        </h1>
+        <div
+          class="flex flex-col space-y-2 items-center max-h-[380px] overflow-y-scroll"
+        >
+          <div
+            v-for="item in achievement"
+            :key="item.id"
+            class="max-w-[600px] w-full p-4 border-2 bg-white border-[#e9e4e4] flex items-center justify-between rounded-md gap-2"
+          >
+            <div class="flex flex-col gap-1 md:gap-2">
+              <p class="text-lg md:text-xl font-bold">{{ item.name }}</p>
+              <p class="text-sm md:text-md">{{ item.desc }}</p>
+            </div>
+            <div
+              class="p-4 rounded"
+              :class="item.isCompleted ? item.bg : 'bg-[#ffe45bde]'"
+            >
+              <span class="text-4xl">{{
+                item.isCompleted ? item.icon : "🔒"
+              }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-center mt-4">
+        <button
+          class="btn bg-[#D9D9D9] text-[#595959] border-0"
+          @click="backHome"
+        >
+          <svg
+            class="w-6 h-6 text-gray-800 dark:text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M13.729 5.575c1.304-1.074 3.27-.146 3.27 1.544v9.762c0 1.69-1.966 2.618-3.27 1.544l-5.927-4.881a2 2 0 0 1 0-3.088l5.927-4.88Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Back
+        </button>
       </div>
     </section>
 
@@ -431,17 +597,11 @@ const showUsedWord = () => {
     </section>
 
     <!-- Game Page -->
-    <section v-show="isGamePage">
+    <section v-show="isGamePage" class="self-start">
       <div class="flex flex-col space-y-4 w-[280px] sm:w-[400px] md:w-[574px]">
         <div class="">
-          <div class="">
-            <h1 class="text-3xl sm:text-5xl font-bold text-center">
-              Word Chain
-            </h1>
-          </div>
-          <!-- class="tooltip" data-tip="hello" -->
           <div class="flex justify-center my-4 mt-6" v-show="isTimer">
-            <ul class="menu lg:menu-horizontal rounded-box bg-white shadow-lg">
+            <ul class="menu sm:menu-horizontal rounded-box bg-white shadow-lg">
               <li class="tooltip bg-white" data-tip="Easy">
                 <a @click="setGameMode('Default')">Default Game</a>
               </li>
@@ -453,7 +613,7 @@ const showUsedWord = () => {
                     data-tip="Normal"
                     @click="setGameMode('timer')"
                   >
-                    Timer!!
+                    Timer
                   </summary>
                   <ul class="bg-white z-50" menu-dropdown>
                     <li><a @click="setTimer(15)">15 sec</a></li>
@@ -574,11 +734,30 @@ const showUsedWord = () => {
           </div>
         </section>
       </div>
+
+      <!-- Achievement Toast -->
+      <div class="toast toast-top toast-end lg:toast-end lg:toast-bottom">
+        <div
+          v-for="item in visibleAchievement"
+          :key="item.id"
+          class="w-full sm:max-w-[600px] sm:w-full p-2 sm:p-4 border-2 bg-white border-[#e9e4e4] flex items-center justify-between rounded-md gap-2 transition-opacity duration-500"
+        >
+          <div class="flex flex-col gap-1 md:gap-2">
+            <span class="text-xs sm:text-lg md:text-xl font-bold">
+              {{ item.name }}
+            </span>
+            <span class="text-xs sm:text-sm md:text-md">{{ item.desc }}</span>
+          </div>
+          <div class="sm:p-4 rounded" :class="item.bg">
+            <span class="text-2xl sm:text-4xl">{{ item.icon }}</span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!--Result Page-->
-    <section v-show="isResultPage" class="w-[600px] p-3">
-      <div class="mb-5">
+    <section v-show="isResultPage">
+      <div class="w-[600px] mb-10">
         <button
           @click="backHome"
           class="px-8 py-2 border rounded-md shadow-md bg-white"
@@ -592,19 +771,19 @@ const showUsedWord = () => {
           class="flex flex-col items-center sm:flex-row py-3 border-b w-full"
         >
           <div
-            class="flex w-3/5 justify-between sm:flex-col sm:items-center sm:w-1/3"
+            class="flex w-1/2 justify-between sm:flex-col sm:items-center sm:w-1/3"
           >
             <p class="text-2xl">Score</p>
             <p class="text-3xl sm:text-5xl">{{ score }}</p>
           </div>
           <div
-            class="flex w-3/5 justify-between sm:flex-col items-center sm:w-1/3"
+            class="flex w-1/2 justify-between sm:flex-col items-center sm:w-1/3"
           >
             <p class="text-2xl">Total Time</p>
             <p class="text-3xl sm:text-5xl">{{ totalTime }}</p>
           </div>
           <div
-            class="flex w-3/5 justify-between items-start sm:flex-col sm:items-center sm:w-1/3"
+            class="flex w-1/2 justify-between items-start sm:flex-col sm:items-center sm:w-1/3"
           >
             <p class="text-2xl">Word Count</p>
             <p class="text-3xl sm:text-5xl">{{ wordCount }}</p>
@@ -615,7 +794,7 @@ const showUsedWord = () => {
           class="py-10 flex flex-col gap-3 items-center justify-center md:flex-row md:gap-8"
         >
           <button
-            class="w-3/5 sm:w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white text-xl fill-white rounded-md font-bold"
+            class="w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white fill-white rounded-md font-bold"
             @click="playAgain"
           >
             <svg
