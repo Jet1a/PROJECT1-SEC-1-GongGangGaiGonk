@@ -776,7 +776,7 @@ const showUsedWord = () => {
 
 					<div class="border rounded-xl shadow-md">
 						<input
-							class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner outline-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
 							@keydown.enter="handleInputChange"
 							v-model="wordInput"
 							placeholder="Please enter a word here"
