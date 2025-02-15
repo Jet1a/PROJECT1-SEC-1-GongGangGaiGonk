@@ -698,42 +698,31 @@ const showUsedWord = () => {
 							</li>
 						</ul>
 					</div>
-					<div class="flex justify-between w-full">
-						<div class="flex gap-4">
-							<button
-								@click="getHint"
-								:disabled="!canUseHint"
-								class="px-3 py-1 border rounded-md text-sm font-medium bg-white shadow-md flex items-center gap-1 hover:bg-gray-100 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
-							>
-								<span class="text-red-500 text-base">❓</span>
-								<span
-									>Hint (<span class="font-bold">{{ availableHints }}</span
-									>)</span
-								>
-							</button>
-
-							<!-- +5 Sec Button -->
-							<button
-								@click="addTime"
-								class="relative px-4 py-2 border rounded-lg shadow-md bg-white flex items-center gap-2 transition-all hover:bg-gray-100 active:scale-95 transition"
-								:class="{ 'opacity-50 cursor-not-allowed': !canUseTimeBoost }"
-								:disabled="!canUseTimeBoost"
-							>
-								<span>⏱️</span>
-								<span
-									>+5 Sec (<span class="font-bold">{{
-										availableTimeBoosts
-									}}</span
-									>)</span
-								>
-							</button>
-						</div>
-						<div
-							class="flex justify-center px-4 py-1 bg-white border rounded-md shadow-md items-center space-x-2 h-full"
+					<section class="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4">
+						<button
+							@click="getHint"
+							:disabled="!canUseHint"
+							class="flex items-center gap-1 px-4 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-6 sm:py-3"
+						>
+							<span class="text-red-500">❓</span>
+							<span class="font-semibold">Hint</span>
+							<span class="text-gray-500">({{ availableHints }})</span>
+						</button>
+						<button
+							@click="addTime"
+							:disabled="!canUseTimeBoost"
+							class="flex items-center gap-1 px-4 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-6 sm:py-3"
+						>
+							<span>⏱️</span>
+							<span class="font-semibold">+5 Sec</span>
+							<span class="text-gray-500">({{ availableTimeBoosts }})</span>
+						</button>
+						<button
+							class="px-4 py-2 border rounded-md shadow-md bg-white hover:shadow-lg active:scale-95 transition sm:px-6 sm:py-3"
 						>
 							<span>{{ chooseWord }} Letters</span>
-						</div>
-					</div>
+						</button>
+					</section>
 				</div>
 
 				<section class="flex items-center justify-between">
