@@ -25,8 +25,16 @@ const nextLetter = ref("");
 const longestWords = ref([]);
 const allStats = ref([]);
 const availableHints = ref(0);
+const availableTimeBoosts = ref(0);
 
+const canUseTimeBoost = computed(() => availableTimeBoosts.value > 0);
 const canUseHint = computed(() => availableHints.value > 0);
+
+const addTime = () => {
+	if (!canUseTimeBoost.value) return;
+	counter.value += 5; // Add 5 seconds to the timer
+	availableTimeBoosts.value--; // Reduce available boosts
+};
 
 const getHint = () => {
 	if (!canUseHint.value) return;
@@ -46,10 +54,16 @@ watch(
 	(newLength, oldLength) => {
 		const newEarnedHints = Math.floor(newLength / 10);
 		const previousEarnedHints = Math.floor(oldLength / 10);
+		const newEarnedTimeBoosts = Math.floor(newLength / 15);
+		const previousEarnedTimeBoosts = Math.floor(oldLength / 15);
 
 		if (newEarnedHints > previousEarnedHints) {
 			availableHints.value++;
 			notification.value = "You earned a new hint!";
+		}
+
+		if (newEarnedTimeBoosts > previousEarnedTimeBoosts) {
+			availableTimeBoosts.value++;
 		}
 	}
 );
@@ -181,6 +195,7 @@ const onReset = () => {
 	stepCounter.value = 0;
 	isTimer.value = true;
 	availableHints.value = 0;
+	availableTimeBoosts.value = 0;
 };
 
 const playAgain = () => {
@@ -684,18 +699,35 @@ const showUsedWord = () => {
 						</ul>
 					</div>
 					<div class="flex justify-between w-full">
-						<button
-							@click="getHint"
-							:disabled="!canUseHint"
-							class="px-3 py-1 border border-black rounded-md text-sm font-medium bg-white shadow-md flex items-center gap-1 hover:bg-gray-100 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
-						>
-							<span class="text-red-500 text-base">❓</span>
-							<span
-								>Hint (<span class="font-bold">{{ availableHints }}</span
-								>)</span
+						<div class="flex gap-4">
+							<button
+								@click="getHint"
+								:disabled="!canUseHint"
+								class="px-3 py-1 border rounded-md text-sm font-medium bg-white shadow-md flex items-center gap-1 hover:bg-gray-100 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-						</button>
+								<span class="text-red-500 text-base">❓</span>
+								<span
+									>Hint (<span class="font-bold">{{ availableHints }}</span
+									>)</span
+								>
+							</button>
 
+							<!-- +5 Sec Button -->
+							<button
+								@click="addTime"
+								class="relative px-4 py-2 border rounded-lg shadow-md bg-white flex items-center gap-2 transition-all hover:bg-gray-100 active:scale-95 transition"
+								:class="{ 'opacity-50 cursor-not-allowed': !canUseTimeBoost }"
+								:disabled="!canUseTimeBoost"
+							>
+								<span>⏱️</span>
+								<span
+									>+5 Sec (<span class="font-bold">{{
+										availableTimeBoosts
+									}}</span
+									>)</span
+								>
+							</button>
+						</div>
 						<div
 							class="flex justify-center px-4 py-1 bg-white border rounded-md shadow-md items-center space-x-2 h-full"
 						>
