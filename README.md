@@ -26,11 +26,20 @@
   - watch(achievement) สำหรับแสดง UI Toast เมื่อสามารถทำ Achievement นั้นได้สำเร็จระหว่างการเล่นที่ Game Page
  - 66130500031 นายณัฐภัทร์  หลำนุ้ย
     - Hint Button Function
-    - Hint เป็น feature ที่จะช่วยให้ผู้เล่นได้เล่นเกมง่ายขึ้นโดยผู้เล่นจะได้รับ hint 1 ครั้งเมื่อผู้เล่นกรอกคำทุกๆ 10 คำ
-    - Function จะทำงานโดยคำที่สุ่มตัวอักษรตัวแรกต้องขึ้นต้นด้วยตัวอักษรตัวสุดท้ายของคำก่อนหน้าและจะดึงคำศัพท์มาจาก wordDictionary.json
-    - และคำที่สุ่มมานั้นจะต้องไม่ซ้ำกับคำที่เคยพิมพ์ไปก่อนหน้า
-    - Time Button (pending..)
-- 66130500053 นายเนติพงศ์  สุขเกษม (Added 3 new game modes and added UI for selecting additional modes, redesign homepage for handle Achievement and fix link every page ,fix bug in new game mode)
+      - Hint เป็น feature ที่จะช่วยให้ผู้เล่นได้เล่นเกมง่ายขึ้นโดยผู้เล่นจะได้รับ hint 1 ครั้งเมื่อผู้เล่นกรอกคำทุกๆ 10 คำ
+      - Function จะทำงานโดยคำที่สุ่มตัวอักษรตัวแรกต้องขึ้นต้นด้วยตัวอักษรตัวสุดท้ายของคำก่อนหน้าและจะดึงคำศัพท์มาจาก wordDictionary.json
+      - และคำที่สุ่มมานั้นจะต้องไม่ซ้ำกับคำที่เคยพิมพ์ไปก่อนหน้า
+    - Time Boost Button
+      - Time Boost เป็น feature ที่่เพิ่มเวลาให้กับผู้เล่น 5 วินาที โดยจะได้ Time boost 1 ครั้งเมื่อผู้เล่นกรอกคำทุกๆ 15 คำ
+      - Adding timer boost button to game page by watch at every 15 word on usedWord then add more 5 sec at counter on time.
+- 66130500053 นายเนติพงศ์  สุขเกษม 
+    - สร้างเกมโหมดใหม่อีก 2 โหมด รวมทั้งหมดเป็น 3 โหมด โดยโหมดที่เพิ่มมากโหมดแรกจะเป็น โหมดแบบจับเวลาไม่มีการ reset เวลาเมื่อตอบคำต่อไปได้ แต่จะเป็นการจับเวลาสามารถเลือกเวลาได้ 15,30,60 วินาที โหมดที่สอง เป็นโหมดที่จะรับ word ที่มาพิมพ์มาเพิ่มตามจำนวนคำที่เลือก เช่นโหมดปกติจะต้องเริ่มต้นด้วยคำศัพท์ที่มีตัวอักษร 3 ตัวขึ้นไป แต่โหมดนี้สามารถเลือกได้ว่าเอาขั้นตำ่เป็นตัวอักษร เพิ่มความยากให้กับเกม
+    - แก้ไข UI สำหรับหน้า HOME ไว้แยกหน้าสำหรับ Achievement page และแยกหน้าของ HOWTOPLAY ไว้อีกทางไม่จำเป็นต้องอ่าน howtoplay ก่อนการเล่นทุกครั้งและเชื่อมหน้าต่างๆใหม่
+- 66130500023 นายชาคริต ภูแล่นนา
+  - Update Result page : change computed() to watch() for finding the longest word
+  - Update game page : add totalTime.value++ for counting total time each round
+  - Add stats to result page : add stats element in result page that show when click at 'Show stats' button. It hides used word elemnet and show stats element instead. This element will show for each round (in session)
+  - Update responsive of result page                                                                                                                                                                                                                                                                                                                                                                              
 
 
 ## สมาชิก

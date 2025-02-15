@@ -24,55 +24,49 @@ const notification = ref("Enter a word to start");
 const nextLetter = ref("");
 const longestWords = ref([]);
 const allStats = ref([]);
-const hintCount = ref(0);
-const remainingHints = computed(() => hintCount.value);
+const availableHints = ref(0);
+const availableTimeBoosts = ref(0);
 
-const getHint = () => {
-	if (remainingHints.value <= 0) {
-		inputError.value = `Need ${
-			10 - (wordCount.value % 10)
-		} more words for a hint`;
-		return;
-	}
-	const lastWord = usedWord.value[usedWord.value.length - 1];
-	if (!lastWord) {
-		inputError.value = "Enter at least one word first";
-		return;
-	}
+const canUseTimeBoost = computed(() => availableTimeBoosts.value > 0);
+const canUseHint = computed(() => availableHints.value > 0);
 
-	const lastLetter = lastWord[lastWord.length - 1];
-	const minLength = lastWord.length;
-
-	const validHints = Object.keys(wordDictionary).filter((word) => {
-		return (
-			word.toLowerCase().startsWith(lastLetter.toLowerCase()) &&
-			word.length >= minLength &&
-			!usedWord.value.includes(word.toLowerCase())
-		);
-	});
-
-	if (validHints.length === 0) {
-		inputError.value = `No available words that start with '${lastLetter}' and are at least ${minLength} characters long`;
-		return;
-	}
-
-	const randomIndex = Math.floor(Math.random() * validHints.length);
-	const hintWord = validHints[randomIndex];
-
-	wordInput.value = hintWord;
-	hintCount.value--;
-	notification.value = `Hint word must be at least ${minLength} characters long`;
+const addTime = () => {
+	if (!canUseTimeBoost.value) return;
+	counter.value += 5; // Add 5 seconds to the timer
+	availableTimeBoosts.value--; // Reduce available boosts
 };
 
-watch(wordCount, (newCount) => {
-	const newEarnedHints = Math.floor(newCount / 10);
-	const previousEarnedHints = Math.floor((newCount - 1) / 10);
+const getHint = () => {
+	if (!canUseHint.value) return;
 
-	if (newEarnedHints > previousEarnedHints) {
-		hintCount.value++;
-		notification.value = "You earned a new hint!";
+	const words = Object.keys(wordDictionary).filter((word) =>
+		word.startsWith(nextLetter.value.toLowerCase())
+	);
+
+	if (words.length > 0) {
+		wordInput.value = words[Math.floor(Math.random() * words.length)];
+		availableHints.value--;
 	}
-});
+};
+
+watch(
+	() => usedWord.value.length,
+	(newLength, oldLength) => {
+		const newEarnedHints = Math.floor(newLength / 10);
+		const previousEarnedHints = Math.floor(oldLength / 10);
+		const newEarnedTimeBoosts = Math.floor(newLength / 15);
+		const previousEarnedTimeBoosts = Math.floor(oldLength / 15);
+
+		if (newEarnedHints > previousEarnedHints) {
+			availableHints.value++;
+			notification.value = "You earned a new hint!";
+		}
+
+		if (newEarnedTimeBoosts > previousEarnedTimeBoosts) {
+			availableTimeBoosts.value++;
+		}
+	}
+);
 
 const description = [
 	{
@@ -200,14 +194,14 @@ const onReset = () => {
 	nextLetter.value = "";
 	stepCounter.value = 0;
 	isTimer.value = true;
-	hintCount.value = 0;
+	availableHints.value = 0;
+	availableTimeBoosts.value = 0;
 };
 
 const playAgain = () => {
 	onReset();
 	isGamePage.value = true;
 	isResultPage.value = false;
-	hintCount.value = 0;
 };
 
 const backHome = () => {
@@ -217,7 +211,6 @@ const backHome = () => {
 	isHowToPlayPage.value = false;
 	isAchievementPage.value = false;
 	isHomePage.value = true;
-	hintCount.value = 0;
 };
 
 const handleInputChange = (e) => {
@@ -326,7 +319,7 @@ const setWord = (word) => {
 
 const setGameMode = (mode) => {
 	gameMode.value = mode;
-	if (gameMode.value === "Default") {
+	if (gameMode.value !== "moreWord") {
 		chooseWord.value = 3;
 	}
 };
@@ -658,9 +651,12 @@ const showUsedWord = () => {
 		</section>
 
 		<!-- Game Page -->
-		<section v-show="isGamePage" class="self-start">
+		<section
+			v-show="isGamePage"
+			class="self-start flex justify-center items-center min-h-screen"
+		>
 			<div class="flex flex-col space-y-4 w-[280px] sm:w-[400px] md:w-[574px]">
-				<div class="">
+				<div>
 					<div class="flex justify-center my-4 mt-6" v-show="isTimer">
 						<ul class="menu sm:menu-horizontal rounded-box bg-white shadow-lg">
 							<li class="tooltip bg-white" data-tip="Easy">
@@ -702,19 +698,31 @@ const showUsedWord = () => {
 							</li>
 						</ul>
 					</div>
-					<div class="flex justify-center my-1">
-						<span class="text-red-700">
-							Word must be at least {{ chooseWord }} character long!</span
+					<section class="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4">
+						<button
+							@click="getHint"
+							:disabled="!canUseHint"
+							class="flex items-center gap-1 px-4 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-6 sm:py-3"
 						>
-					</div>
-					<button
-						@click="getHint"
-						class="px-4 py-1 bg-white border rounded-md shadow-md flex items-center space-x-2"
-						:disabled="remainingHints <= 0"
-					>
-						<span class="font-bold text-red-700">?</span>
-						<span>Hint ({{ remainingHints }})</span>
-					</button>
+							<span class="text-red-500">❓</span>
+							<span class="font-semibold">Hint</span>
+							<span class="text-gray-500">({{ availableHints }})</span>
+						</button>
+						<button
+							@click="addTime"
+							:disabled="!canUseTimeBoost"
+							class="flex items-center gap-1 px-4 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-6 sm:py-3"
+						>
+							<span>⏱️</span>
+							<span class="font-semibold">+5 Sec</span>
+							<span class="text-gray-500">({{ availableTimeBoosts }})</span>
+						</button>
+						<button
+							class="px-4 py-2 border rounded-md shadow-md bg-white hover:shadow-lg active:scale-95 transition sm:px-6 sm:py-3"
+						>
+							<span>{{ chooseWord }} Letters</span>
+						</button>
+					</section>
 				</div>
 
 				<section class="flex items-center justify-between">
