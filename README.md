@@ -33,8 +33,8 @@
 - 66130500053 นายเนติพงศ์  สุขเกษม (Added 3 new game modes and added UI for selecting additional modes, redesign homepage for handle Achievement and fix link every page ,fix bug in new game mode)
 - 66130500023 นายชาคริต ภูแล่นนา
   - Update Result page : change computed() to watch() for finding the longest word
-  - Update game page : add totalTime.value++ for counting total time each play round
-  - Add stats to result page : add stats element in result page that show when click at 'Show stats' button. It hides used word elemnet and show stats element instead.
+  - Update game page : add totalTime.value++ for counting total time each round
+  - Add stats to result page : add stats element in result page that show when click at 'Show stats' button. It hides used word elemnet and show stats element instead. This element will show for each round (in session)
   - Update responsive of result page                                                                                                                                                                                                                                                                                                                                                                              
 
 
