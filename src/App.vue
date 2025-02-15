@@ -60,10 +60,17 @@ watch(
 		if (newEarnedHints > previousEarnedHints) {
 			availableHints.value++;
 			notification.value = "You earned a new hint!";
+			setTimeout(() => {
+				notification.value = `Next word must begin with '${nextLetter.value}'`;
+			}, 1500);
 		}
 
 		if (newEarnedTimeBoosts > previousEarnedTimeBoosts) {
 			availableTimeBoosts.value++;
+			notification.value = "You earned a new time boost!";
+			setTimeout(() => {
+				notification.value = `Next word must begin with '${nextLetter.value}'`;
+			}, 1500);
 		}
 	}
 );
