@@ -299,14 +299,6 @@ const handleInputChange = (e) => {
 	wordInput.value = "";
 };
 
-const findLongestWord = () => {
-	const lengthOfLongestWord = usedWord.value.reduce(
-		(longest, word) => (word.length > longest ? word.length : longest),
-		0
-	);
-	return usedWord.value.filter((word) => word.length === lengthOfLongestWord);
-};
-
 // game mode script
 const gameMode = ref("default");
 const chooseTimer = ref(15);
@@ -413,9 +405,19 @@ watchEffect(() => {
 		chooseTimer.value = 15;
 	}
 });
+
+const findLongestWord = () => {
+	const lengthOfLongestWord = usedWord.value.reduce(
+		(longest, word) => (word.length > longest ? word.length : longest),
+		0
+	);
+	return usedWord.value.filter((word) => word.length === lengthOfLongestWord);
+};
+
 watch(isGamePage, (newValue) => {
 	if (!newValue) longestWords.value = findLongestWord();
 });
+
 
 const showStats = () => {
 	isShowStats.value = true;
@@ -841,14 +843,18 @@ const showUsedWord = () => {
 
 		<!-- Result Page-->
 		<section v-show="isResultPage" class="w-[600px] p-3">
-			<div class="mb-5">
+			<div class="mb-5 flex justify-between">
 				<button
 					@click="backHome"
-					class="px-8 py-2 border rounded-md shadow-md bg-white"
+					class="px-8 py-2 border rounded-md shadow-md bg-white hover:text-white hover:bg-[#67a8f3] "
 				>
 					Back
 				</button>
-			</div>
+        <div class="px-8 py-2 flex gap-3 border border-gray-200 bg-gray-100 rounded-md shadow-md">
+        <svg width="20px" height="30px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="#1882ff" d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/></svg>
+        <span class="text-xl">{{ userName }}</span>
+      </div>
+      </div>
 			<div class="border border-gray-200 shadow-lg">
 				<p class="text-center text-3xl font-bold py-8">Game Over</p>
 				<div
@@ -878,7 +884,7 @@ const showUsedWord = () => {
 					class="py-10 flex flex-col gap-3 items-center justify-center md:flex-row md:gap-8"
 				>
 					<button
-						class="w-3/5 sm:w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white text-xl fill-white rounded-md font-bold"
+						class="w-3/5 sm:w-1/3 flex justify-center gap-3 bg-[#1882FF] px-5 py-1.5 text-white text-xl fill-white rounded-md font-bold hover:bg-[#67a8f3]"
 						@click="playAgain"
 					>
 						<svg
@@ -893,14 +899,14 @@ const showUsedWord = () => {
 						Play Again
 					</button>
 					<button
-						class="w-3/5 sm:w-1/3 bg-[#1882FF] px-5 py-1.5 text-white text-xl font-bold rounded-md"
+						class="w-3/5 sm:w-1/3 bg-[#1882FF] px-5 py-1.5 text-white text-xl font-bold rounded-md hover:bg-[#67a8f3]"
 						v-show="!isShowStats"
 						@click="showStats"
 					>
 						Show stats
 					</button>
 					<button
-						class="w-3/5 sm:w-1/3 bg-[#1882FF] px-5 py-1.5 text-white text-xl font-bold rounded-md"
+						class="w-3/5 sm:w-1/3 bg-[#1882FF] px-5 py-1.5 text-white text-xl font-bold rounded-md hover:bg-[#67a8f3]"
 						v-show="isShowStats"
 						@click="showUsedWord"
 					>
