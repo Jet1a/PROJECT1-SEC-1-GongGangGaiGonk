@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, watchEffect, computed } from "vue";
+import { ref, watch, watchEffect, computed, h } from "vue";
 import wordDictionary from "./data/words_dictionary";
 
 const isHomePage = ref(true);
@@ -33,6 +33,9 @@ const letterCount = ref(3);
 const isTimer = ref(true);
 const wordDropdown = ref(null);
 const timeDropdown = ref(null);
+
+const history = ref([]);
+const historyIndex = ref(-1);
 const description = [
   {
     step: 1,
@@ -151,12 +154,14 @@ const onReset = () => {
   isTimer.value = true;
   availableHints.value = 0;
   availableTimeBoosts.value = 0;
+  history.value = [];
 };
 
 const playAgain = () => {
   onReset();
   isGamePage.value = true;
   isResultPage.value = false;
+  history.value = [];
 };
 
 const backHome = () => {
@@ -222,7 +227,7 @@ const handleInputChange = (e) => {
     return;
   }
 
-  if (wordInput.value.length < 3 && gameMode.value === "default") {
+  if (wordInput.value.length < 3 && gameMode.value !== "moreWord") {
     inputError.value = `Word must be at least 3 character long!`;
     wordInput.value = "";
     return;
@@ -249,7 +254,6 @@ const handleInputChange = (e) => {
   }
 
   if (isGamePage.value) {
-    if (gameMode.value !== "timer") counter.value = chooseTimer.value;
     clearInterval(interval.value);
     interval.value = setInterval(() => {
       if (counter.value > 0) {
@@ -280,6 +284,14 @@ const handleInputChange = (e) => {
 
   usedWord.value.unshift(wordInput.value);
   nextLetter.value = wordInput.value.slice(-1);
+
+  if (wordInput.value.trim() !== "") {
+    history.value.push(wordInput.value);
+    historyIndex.value = -1;
+    wordInput.value = "";
+    console.log("historyIndex", historyIndex.value);
+    console.log("history", history.value);
+  }
 
   checkAchievement(wordInput.value);
   notification.value = `Next word must begin with '${nextLetter.value}'`;
@@ -422,6 +434,32 @@ watch(
     }
   }
 );
+
+const handleKeydown = (event) => {
+  if (event.key === "ArrowUp") {
+    if (
+      history.value.length > 0 &&
+      historyIndex.value < history.value.length - 1
+    ) {
+      historyIndex.value++;
+      wordInput.value =
+        history.value[history.value.length - 1 - historyIndex.value];
+      console.log("historyIndex", historyIndex.value);
+      console.log("history", history.value);
+    }
+  } else if (event.key === "ArrowDown") {
+    if (historyIndex.value > 0) {
+      historyIndex.value--;
+      wordInput.value =
+        history.value[history.value.length - 1 - historyIndex.value];
+      console.log("historyIndex", historyIndex.value);
+      console.log("history", history.value);
+    } else {
+      historyIndex.value = -1;
+      wordInput.value = "";
+    }
+  }
+};
 </script>
 
 <template>
@@ -659,26 +697,34 @@ watch(
       <div class="flex flex-col space-y-4 w-[280px] sm:w-[400px] md:w-[574px]">
         <div>
           <div class="flex justify-center my-4 mt-6" v-show="isTimer">
-            <ul class="menu menu-horizontal rounded-box bg-white shadow-lg">
-              <li class="tooltip w-[100px] sm:w-[120px]" data-tip="Easy">
-                <a @click="setGameMode('Default')" class="!text-center"
+            <ul
+              class="menu menu-horizontal rounded-box bg-white shadow-lg text-xs max-w-xs w-full justify-center p-1"
+            >
+              <li class="tooltip bg-white" data-tip="Easy">
+                <a class="px-4 py-3" @click="setGameMode('Default')"
                   >Default Game</a
                 >
               </li>
 
-              <li class="flex items-center justify-center">
+              <li>
                 <details ref="timeDropdown">
                   <summary
-                    class="tooltip sm:w-[120px]"
+                    class="tooltip px-4 py-3"
                     data-tip="Normal"
                     @click="setGameMode('timer')"
                   >
                     Timer
                   </summary>
-                  <ul class="bg-white z-50" menu-dropdown>
-                    <li><a @click="setTimer(15)">15 sec</a></li>
-                    <li><a @click="setTimer(30)">30 sec</a></li>
-                    <li><a @click="setTimer(60)">60 sec</a></li>
+                  <ul class="bg-white z-50 text-xs p-1">
+                    <li>
+                      <a class="px-5 py-3" @click="setTimer(15)">15 sec</a>
+                    </li>
+                    <li>
+                      <a class="px-5 py-3" @click="setTimer(30)">30 sec</a>
+                    </li>
+                    <li>
+                      <a class="px-5 py-3" @click="setTimer(60)">60 sec</a>
+                    </li>
                   </ul>
                 </details>
               </li>
@@ -686,28 +732,44 @@ watch(
               <li>
                 <details ref="wordDropdown">
                   <summary
-                    class="tooltip w-[80px] sm:w-[120px] !text-center"
+                    class="tooltip px-4 py-3"
                     data-tip="Difficult"
                     @click="setGameMode('moreWord')"
                   >
                     More Word
                   </summary>
-                  <ul class="bg-white z-50">
-                    <li><a @click="setWord(4)">4 word</a></li>
-                    <li><a @click="setWord(5)">5 word</a></li>
-                    <li><a @click="setWord(6)">6 word</a></li>
+                  <ul class="bg-white z-50 text-xs p-1">
+                    <li><a class="px-3 py-1" @click="setWord(4)">4 word</a></li>
+                    <li><a class="px-3 py-1" @click="setWord(5)">5 word</a></li>
+                    <li><a class="px-3 py-1" @click="setWord(6)">6 word</a></li>
                   </ul>
                 </details>
               </li>
             </ul>
           </div>
           <section class="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4">
-            <button
-              class="px-4 py-2 border rounded-md shadow-md bg-white hover:shadow-lg active:scale-95 transition sm:px-6 sm:py-3"
-            >
-              <span>{{ letterCount }} Letters</span>
-            </button>
-
+            <div>
+              <button
+                class="px-4 py-2 border rounded-md shadow-md bg-white hover:shadow-lg active:scale-95 transition sm:px-6 sm:py-3"
+              >
+                <div>
+                  <span>🔥</span>
+                  <span class="font-semibold"> Game Mode</span>
+                </div>
+                <div v-show="gameMode === 'Default'">
+                  <span>☕️ Default</span>
+                </div>
+                <div v-show="gameMode === 'moreWord'">
+                  <span class="countdown">
+                    <span :style="{ '--value': letterCount }"></span>
+                  </span>
+                  <span class="ml-1">Letters</span>
+                </div>
+                <div v-show="gameMode === 'timer'">
+                  <span>⏳ Timer</span>
+                </div>
+              </button>
+            </div>
             <button
               @click="getHint"
               :disabled="!canUseHint"
@@ -797,6 +859,7 @@ watch(
             <input
               class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
               @keydown.enter="handleInputChange"
+              @keydown="handleKeydown"
               v-model="wordInput"
               placeholder="Please enter a word here"
               type="text"
@@ -986,4 +1049,13 @@ watch(
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.countdown > span:before {
+  position: relative;
+  content: "0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 10\A 11\A 12\A 13\A 14\A 15\A 16\A 17\A 18\A 19\A 20\A 21\A 22\A 23\A 24\A 25\A 26\A 27\A 28\A 29\A 30\A 31\A 32\A 33\A 34\A 35\A 36\A 37\A 38\A 39\A 40\A 41\A 42\A 43\A 44\A 45\A 46\A 47\A 48\A 49\A 50\A 51\A 52\A 53\A 54\A 55\A 56\A 57\A 58\A 59\A 60\A 61\A 62\A 63\A 64\A 65\A 66\A 67\A 68\A 69\A 70\A 71\A 72\A 73\A 74\A 75\A 76\A 77\A 78\A 79\A 80\A 81\A 82\A 83\A 84\A 85\A 86\A 87\A 88\A 89\A 90\A 91\A 92\A 93\A 94\A 95\A 96\A 97\A 98\A 99\A";
+  white-space: pre;
+  top: calc(var(--value) * -1em);
+  text-align: center;
+  transition: all 1s cubic-bezier(1, 0, 0, 1);
+}
+</style>
