@@ -254,6 +254,7 @@ const handleInputChange = (e) => {
   }
 
   if (isGamePage.value) {
+    if(gameMode.value !== "timer") counter.value = chooseTimer.value;
     clearInterval(interval.value);
     interval.value = setInterval(() => {
       if (counter.value > 0) {
