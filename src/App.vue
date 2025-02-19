@@ -168,7 +168,6 @@ const handleSubmit = () => {
 		isError.value = false;
 		isHomePage.value = false;
 		isGamePage.value = true;
-		console.log("UserName:", userName.value);
 	}
 };
 
