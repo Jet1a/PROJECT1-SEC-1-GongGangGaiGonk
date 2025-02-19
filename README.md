@@ -42,7 +42,7 @@
   - Add stats to result page : add stats element in result page that show when click at 'Show stats' button. It hides used word elemnet and show stats element instead. This element will show for each round (in session)
   - Update responsive of result page
     
-## Demo How to play?
+## Demo and How to play TOR KUM
 https://github.com/user-attachments/assets/75b38f77-6d61-4299-9184-18a0148ffe25
 
 
