@@ -195,6 +195,11 @@ const setWord = (word) => {
 
 const setGameMode = (mode) => {
   gameMode.value = mode;
+  if (wordDropdown.value || timeDropdown.value) {
+    wordDropdown.value.removeAttribute("open");
+    timeDropdown.value.removeAttribute("open");
+  }
+
   if (gameMode.value !== "moreWord") {
     letterCount.value = 3;
   }
@@ -473,19 +478,19 @@ const handleKeydown = (event) => {
       >
         <div class="flex flex-col items-center">
           <h1
-            class="text-[72px] font-bold text-[#1882FF] sm:-tracking-[-0.1em]"
+            class="text-[72px] font-bold text-[#1882FF] sm:-tracking-[-0.1em] animate-slidedown"
           >
             TORKUM
           </h1>
-          <h2 class="text-[24px] font-bold">Word Chain Game</h2>
-          <p class="text-sm mt-2 max-w-md">
+          <h2 class="text-[24px] font-bold animate-slideleft">Word Chain Game</h2>
+          <p class="text-sm mt-2 max-w-md animate-slideright">
             Word Chain is an exciting word game where each new word must begin
             with the final letter of the preceding word. Challenge your
             vocabulary skills and see how long of a chain you can create!
           </p>
         </div>
 
-        <div class="mt-6 w-full max-w-md">
+        <div class="mt-6 w-full max-w-md animate-slideup">
           <form
             @submit.prevent="handleSubmit"
             class="flex flex-col gap-4 items-center"
@@ -757,7 +762,7 @@ const handleKeydown = (event) => {
                   <span>🔥</span>
                   <span class="font-semibold"> Game Mode</span>
                 </div>
-                <div v-show="gameMode === 'Default'">
+                <div v-show="gameMode === 'Default' || gameMode === 'default'">
                   <span>☕️ Default</span>
                 </div>
                 <div v-show="gameMode === 'moreWord'">
