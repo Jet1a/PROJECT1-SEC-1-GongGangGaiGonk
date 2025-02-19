@@ -6,6 +6,7 @@
   0% {
     transform: translateY(100%);
   }
+
   100% {
     transform: translateY(0);
   }
@@ -15,6 +16,7 @@
   0% {
     transform: translateY(-300%);
   }
+
   100% {
     transform: translateY(0%);
   }
@@ -24,6 +26,7 @@
   0% {
     transform: translateX(200%);
   }
+
   100% {
     transform: translateX(0);
   }
@@ -33,21 +36,26 @@
   0% {
     transform: translateX(-300%);
   }
+
   100% {
     transform: translateX(0%);
   }
 }
+
 @layer utilities {
-    .animate-slideup {
-      @apply animate-[slideup_0.5s_ease-in-out];
-    }
-    .animate-slidedown {
-      @apply animate-[slidedown_0.5s_ease-in-out];
-    }
-    .animate-slideleft {
-      @apply animate-[slideleft_0.5s_ease-in-out];
-    }
-    .animate-slideright {
-      @apply animate-[slideright_0.5s_ease-in-out];
-    }
+  .animate-slideup {
+    @apply animate-[slideup_0.5s_ease-in-out];
   }
+
+  .animate-slidedown {
+    @apply animate-[slidedown_0.5s_ease-in-out];
+  }
+
+  .animate-slideleft {
+    @apply animate-[slideleft_0.5s_ease-in-out];
+  }
+
+  .animate-slideright {
+    @apply animate-[slideright_0.5s_ease-in-out];
+  }
+}

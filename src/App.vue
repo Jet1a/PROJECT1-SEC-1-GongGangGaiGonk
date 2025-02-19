@@ -200,7 +200,7 @@ const setGameMode = (mode) => {
     timeDropdown.value.removeAttribute("open");
   }
 
-  if (gameMode.value !== "moreWord") {
+  if (gameMode.value !== "moreLetter") {
     letterCount.value = 3;
   }
 };
@@ -214,6 +214,47 @@ const setTimer = (time) => {
   }
 };
 
+const checkInput = (word) => {
+  if (
+    word === "" ||
+    /\d/.test(word) ||
+    word.includes(" ") ||
+    !wordDictionary[word.toLowerCase()]
+  ) {
+    inputError.value = `"${word}" is not a valid word!`;
+    wordInput.value = "";
+    return false;
+  }
+
+  if (word.length < 3 && gameMode.value !== "moreLetter") {
+    inputError.value = `Word must be at least 3 character long!`;
+    wordInput.value = "";
+    return false;
+  } else if (
+    letterCount.value &&
+    word.length < letterCount.value &&
+    gameMode.value === "moreLetter"
+  ) {
+    inputError.value = `Word must be ${letterCount.value} character long!`;
+    wordInput.value = "";
+    return false;
+  }
+
+  if (!word.charAt(0).includes(nextLetter.value)) {
+    inputError.value = `Word must start with letter ${nextLetter.value}`;
+    wordInput.value = "";
+    return false;
+  }
+
+  if (usedWord.value.includes(word)) {
+    inputError.value = `Word have been used.`;
+    wordInput.value = "";
+    return false;
+  }
+
+  return true;
+};
+
 const handleInputChange = (e) => {
   wordInput.value = e.target.value.trim().toUpperCase();
 
@@ -221,45 +262,10 @@ const handleInputChange = (e) => {
     isTimer.value = false;
   }
 
-  if (
-    wordInput.value === "" ||
-    /\d/.test(wordInput.value) ||
-    wordInput.value.includes(" ") ||
-    !wordDictionary[wordInput.value.toLowerCase()]
-  ) {
-    inputError.value = `"${wordInput.value}" is not a valid word!`;
-    wordInput.value = "";
-    return;
-  }
-
-  if (wordInput.value.length < 3 && gameMode.value !== "moreWord") {
-    inputError.value = `Word must be at least 3 character long!`;
-    wordInput.value = "";
-    return;
-  } else if (
-    letterCount.value &&
-    wordInput.value.length < letterCount.value &&
-    gameMode.value === "moreWord"
-  ) {
-    inputError.value = `Word must be ${letterCount.value} character long!`;
-    wordInput.value = "";
-    return;
-  }
-
-  if (!wordInput.value.charAt(0).includes(nextLetter.value)) {
-    inputError.value = `Word must start with letter ${nextLetter.value}`;
-    wordInput.value = "";
-    return;
-  }
-
-  if (usedWord.value.includes(wordInput.value)) {
-    inputError.value = `Word have been used.`;
-    wordInput.value = "";
-    return;
-  }
+  if (!checkInput(wordInput.value)) return;
 
   if (isGamePage.value) {
-    if(gameMode.value !== "timer") counter.value = chooseTimer.value;
+    if (gameMode.value !== "timer") counter.value = chooseTimer.value;
     clearInterval(interval.value);
     interval.value = setInterval(() => {
       if (counter.value > 0) {
@@ -295,8 +301,6 @@ const handleInputChange = (e) => {
     history.value.push(wordInput.value);
     historyIndex.value = -1;
     wordInput.value = "";
-    console.log("historyIndex", historyIndex.value);
-    console.log("history", history.value);
   }
 
   checkAchievement(wordInput.value);
@@ -377,6 +381,28 @@ const findLongestWord = () => {
   return usedWord.value.filter((word) => word.length === lengthOfLongestWord);
 };
 
+const handleKeydown = (event) => {
+  if (event.key === "ArrowUp") {
+    if (
+      history.value.length > 0 &&
+      historyIndex.value < history.value.length - 1
+    ) {
+      historyIndex.value++;
+      wordInput.value =
+        history.value[history.value.length - 1 - historyIndex.value];
+    }
+  } else if (event.key === "ArrowDown") {
+    if (historyIndex.value > 0) {
+      historyIndex.value--;
+      wordInput.value =
+        history.value[history.value.length - 1 - historyIndex.value];
+    } else {
+      historyIndex.value = -1;
+      wordInput.value = "";
+    }
+  }
+};
+
 watch(isGamePage, (newValue) => {
   if (!newValue) longestWords.value = findLongestWord();
 });
@@ -440,32 +466,6 @@ watch(
     }
   }
 );
-
-const handleKeydown = (event) => {
-  if (event.key === "ArrowUp") {
-    if (
-      history.value.length > 0 &&
-      historyIndex.value < history.value.length - 1
-    ) {
-      historyIndex.value++;
-      wordInput.value =
-        history.value[history.value.length - 1 - historyIndex.value];
-      console.log("historyIndex", historyIndex.value);
-      console.log("history", history.value);
-    }
-  } else if (event.key === "ArrowDown") {
-    if (historyIndex.value > 0) {
-      historyIndex.value--;
-      wordInput.value =
-        history.value[history.value.length - 1 - historyIndex.value];
-      console.log("historyIndex", historyIndex.value);
-      console.log("history", history.value);
-    } else {
-      historyIndex.value = -1;
-      wordInput.value = "";
-    }
-  }
-};
 </script>
 
 <template>
@@ -482,7 +482,9 @@ const handleKeydown = (event) => {
           >
             TORKUM
           </h1>
-          <h2 class="text-[24px] font-bold animate-slideleft">Word Chain Game</h2>
+          <h2 class="text-[24px] font-bold animate-slideleft">
+            Word Chain Game
+          </h2>
           <p class="text-sm mt-2 max-w-md animate-slideright">
             Word Chain is an exciting word game where each new word must begin
             with the final letter of the preceding word. Challenge your
@@ -696,15 +698,12 @@ const handleKeydown = (event) => {
       </div>
     </section>
 
-    <section
-      v-show="isGamePage"
-      class="self-start flex justify-center items-center min-h-screen"
-    >
+    <section v-show="isGamePage">
       <div class="flex flex-col space-y-4 w-[280px] sm:w-[400px] md:w-[574px]">
         <div>
           <div class="flex justify-center my-4 mt-6" v-show="isTimer">
             <ul
-              class="menu menu-horizontal rounded-box bg-white shadow-lg text-xs max-w-xs w-full justify-center p-1"
+              class="menu menu-horizontal rounded-box bg-white shadow-sm border text-xs max-w-xs w-full justify-center p-1"
             >
               <li class="tooltip bg-white" data-tip="Easy">
                 <a class="px-4 py-3" @click="setGameMode('Default')"
@@ -740,14 +739,20 @@ const handleKeydown = (event) => {
                   <summary
                     class="tooltip px-4 py-3"
                     data-tip="Difficult"
-                    @click="setGameMode('moreWord')"
+                    @click="setGameMode('moreLetter')"
                   >
-                    More Word
+                    More Letters
                   </summary>
                   <ul class="bg-white z-50 text-xs p-1">
-                    <li><a class="px-3 py-1" @click="setWord(4)">4 word</a></li>
-                    <li><a class="px-3 py-1" @click="setWord(5)">5 word</a></li>
-                    <li><a class="px-3 py-1" @click="setWord(6)">6 word</a></li>
+                    <li>
+                      <a class="px-3 py-1" @click="setWord(4)">4 Letters</a>
+                    </li>
+                    <li>
+                      <a class="px-3 py-1" @click="setWord(5)">5 Letters</a>
+                    </li>
+                    <li>
+                      <a class="px-3 py-1" @click="setWord(6)">6 Letters</a>
+                    </li>
                   </ul>
                 </details>
               </li>
@@ -755,44 +760,53 @@ const handleKeydown = (event) => {
           </div>
           <section class="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4">
             <div>
-              <button
-                class="px-4 py-2 border rounded-md shadow-md bg-white hover:shadow-lg active:scale-95 transition sm:px-6 sm:py-3"
+              <div
+                class="px-4 py-2 text-center border rounded-md shadow-md bg-white hover:shadow-lg active:scale-95 transition sm:px-6 sm:py-3"
               >
                 <div>
                   <span>🔥</span>
-                  <span class="font-semibold"> Game Mode</span>
+                  <span class="font-semibold text-sm sm:text-md"
+                    >Game Mode</span
+                  >
                 </div>
                 <div v-show="gameMode === 'Default' || gameMode === 'default'">
-                  <span>☕️ Default</span>
+                  <span class="">☕️ Default</span>
                 </div>
-                <div v-show="gameMode === 'moreWord'">
+                <div v-show="gameMode === 'moreLetter'">
                   <span class="countdown">
-                    <span :style="{ '--value': letterCount }"></span>
+                    <span
+                      :style="{
+                        '--value': letterCount,
+                        'text-align': 'center',
+                      }"
+                    ></span>
                   </span>
-                  <span class="ml-1">Letters</span>
+                  <span class="ml-1 text-sm sm:text-md">Letters</span>
                 </div>
                 <div v-show="gameMode === 'timer'">
-                  <span>⏳ Timer</span>
+                  <span class="text-sm sm:text-md">⏳ Timer</span>
                 </div>
-              </button>
+              </div>
             </div>
-            <button
-              @click="getHint"
-              :disabled="!canUseHint"
-              class="flex items-center gap-1 px-4 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-6 sm:py-3"
-            >
-              <span class="text-red-500">❓</span>
-              <span class="font-semibold">Hint</span>
-              <span class="text-gray-500">({{ availableHints }})</span>
-            </button>
+
             <button
               @click="addTime"
               :disabled="!canUseTimeBoost"
-              class="flex items-center gap-1 px-4 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-6 sm:py-3"
+              class="flex items-center gap-1 px-2 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-4 sm:py-2"
             >
-              <span>⏱️</span>
-              <span class="font-semibold">+5 Sec</span>
+              <span class="text-sm sm:text-md">⏱️</span>
+              <span class="font-semibold text-sm sm:text-md">+5 Sec</span>
               <span class="text-gray-500">({{ availableTimeBoosts }})</span>
+            </button>
+
+            <button
+              @click="getHint"
+              :disabled="!canUseHint"
+              class="flex items-center gap-1 px-2 py-2 border rounded-md shadow-md bg-white disabled:opacity-50 disabled:cursor-not-allowed transition hover:shadow-lg active:scale-95 sm:px-4 sm:py-2"
+            >
+              <span class="text-sm">❓</span>
+              <span class="text-sm sm:text-md font-semibold">Hint</span>
+              <span class="text-gray-500">({{ availableHints }})</span>
             </button>
           </section>
         </div>
@@ -805,9 +819,9 @@ const handleKeydown = (event) => {
             Back
           </button>
 
-          <span @click="onReset" class="mr-4 cursor-pointer">
+          <span @click="onReset" class="cursor-pointer">
             <svg
-              class="w-5 sm:w-6"
+              class="w-4 sm:w-5"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
             >
@@ -825,7 +839,7 @@ const handleKeydown = (event) => {
             <span class="text-3xl sm:text-5xl">{{ score }}</span>
           </div>
           <div
-            class="flex flex-col items-center justify-center w-[250px] sm:w-full"
+            class="flex flex-col items-center justify-center text-center w-[250px] sm:w-full"
           >
             <span>Time</span>
             <span class="text-3xl sm:text-5xl countdown">
@@ -863,7 +877,7 @@ const handleKeydown = (event) => {
 
           <div class="border rounded-xl shadow-md">
             <input
-              class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-xl sm:text-2xl p-4 bg-white rounded shadow-inner outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+              class="w-[280px] sm:w-[400px] md:w-[574px] h-[50px] sm:h-[65px] text-lg sm:text-2xl p-4 bg-white rounded shadow-inner outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
               @keydown.enter="handleInputChange"
               @keydown="handleKeydown"
               v-model="wordInput"
@@ -892,7 +906,6 @@ const handleKeydown = (event) => {
         </section>
       </div>
 
-      <!-- Achievement Toast -->
       <div class="toast toast-top toast-end lg:toast-end lg:toast-bottom">
         <div
           v-for="item in visibleAchievement"
