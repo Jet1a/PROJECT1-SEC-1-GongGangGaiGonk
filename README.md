@@ -40,7 +40,13 @@
   - Update Result page : change computed() to watch() for finding the longest word
   - Update game page : add totalTime.value++ for counting total time each round
   - Add stats to result page : add stats element in result page that show when click at 'Show stats' button. It hides used word elemnet and show stats element instead. This element will show for each round (in session)
-  - Update responsive of result page                                                                                                                                                                                                                                                                                                                                                                              
+  - Update responsive of result page
+    
+## Demo How to play?
+https://github.com/user-attachments/assets/75b38f77-6d61-4299-9184-18a0148ffe25
+
+
+                                                                                                                                                                                                                                                                                                                                                                           
 
 
 ## สมาชิก
